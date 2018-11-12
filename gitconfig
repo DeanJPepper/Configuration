@@ -1,0 +1,32 @@
+[push]
+	default = current
+[alias]
+	# config
+	cfg = config --global -e
+	
+	# start work
+	co = "!f() { git checkout "${1-develop}"; }; f"
+	cob = checkout -b
+	cop = "!f() { git checkout -b "${1}" && git push; }; f"
+	
+	# stop work
+	cm = commit -m
+	cma = !git add . && git commit -m
+	sp = stash push -m
+	bd = branch -d
+	
+	# update
+	ft = fetch --prune
+	pl = pull --prune
+	ps = push
+	up = "!f() { echo "Pulling ${1-develop}" && git checkout "${1-develop}" -q && git pull && git checkout - -q; }; f"
+	
+	# merge
+	mg = merge
+	mgp = "!f() { echo "Pulling ${1-develop}" && git checkout "${1-develop}" -q && git pull && git checkout - -q && echo "Merging ${1-develop}" && git merge "${1-develop}"; }; f"
+	
+	# view
+	st = status -sb
+	lg = log --oneline --graph --decorate --all -n 15
+	br = branch --all
+	sl = stash list
