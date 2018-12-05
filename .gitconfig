@@ -5,21 +5,23 @@
 	cfg = config --global -e
 	
 	# start work
-	co = "!f() { git checkout "${1-develop}"; }; f"
-	cob = checkout -b
-	cop = "!f() { git checkout -b "${1}" && git push; }; f"
+	ch = "!f() { git checkout "${1-develop}"; }; f"
+	chb = checkout -b
+	chp = "!f() { git checkout -b "${1}" && git push; }; f"
+	ssa = stash apply
+	ssp = stash pop
 	
 	# stop work
 	cm = commit -m
 	cma = !git add . && git commit -m
-	sp = stash push -m
-	bd = branch -d
+	ssp = stash push -m
+	sspa = !git add . && git stash push -m
+	brd = branch -d
 	
-	# update
+	# remote
 	ft = fetch --prune
 	pl = pull --prune
 	ps = push
-	up = "!f() { echo "Pulling ${1-develop}" && git checkout "${1-develop}" -q && git pull && git checkout - -q; }; f"
 	
 	# merge
 	mg = merge
@@ -29,4 +31,4 @@
 	st = status -sb
 	lg = log --oneline --graph --decorate --all -n 15
 	br = branch --all
-	sl = stash list
+	ssl = stash list
