@@ -1,5 +1,7 @@
 [push]
 	default = current
+[pull]
+	default = current
 [alias]
 	# config
 	cfg = config --global -e
