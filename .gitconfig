@@ -26,7 +26,7 @@
 	ps = push
 	
 	# merge
-	mg = merge
+	mg = "!f() { git merge "${1-develop}"; }; f"
 	mgp = "!f() { echo "Pulling ${1-develop}" && git checkout "${1-develop}" -q && git pull && git checkout - -q && echo "Merging ${1-develop}" && git merge "${1-develop}"; }; f"
 	
 	# view
