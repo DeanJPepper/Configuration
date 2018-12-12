@@ -11,7 +11,7 @@
 	chb = checkout -b
 	chp = "!f() { git checkout -b "${1}" && git push; }; f"
 	ssa = stash apply
-	ssp = stash pop
+	sspp = stash pop
 	
 	# stop work
 	cm = commit -m
@@ -27,7 +27,6 @@
 	
 	# merge
 	mg = "!f() { git merge "${1-develop}"; }; f"
-	mgp = "!f() { echo "Pulling ${1-develop}" && git checkout "${1-develop}" -q && git pull && git checkout - -q && echo "Merging ${1-develop}" && git merge "${1-develop}"; }; f"
 	
 	# view
 	st = status -sb
