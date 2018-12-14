@@ -27,6 +27,7 @@
 	
 	# merge
 	mg = "!f() { git merge "${1-develop}"; }; f"
+	mgc = !git add . && git merge --continue
 	
 	# view
 	st = status -sb
