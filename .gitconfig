@@ -30,7 +30,7 @@
 	mgc = !git add . && git merge --continue
 	
 	# view
-	st = status -sb
-	lg = log --oneline --graph --decorate --all -n 15
+	st = status --short --branch
+	lg = !git st && git log --oneline --graph --decorate --all -n 15
 	br = branch --all
 	ssl = stash list
