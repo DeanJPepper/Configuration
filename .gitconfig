@@ -23,14 +23,14 @@
 	# remote
 	ft = fetch --prune
 	pl = pull --prune
-	ps = push
+	ps = push --set-upstream
 	
 	# merge
 	mg = "!f() { git merge "${1-develop}"; }; f"
 	mgc = !git add . && git merge --continue
 	
 	# view
-	st = status --short --branch
+	st = status --short
 	lg = !git st && git log --oneline --graph --decorate --all -n 15
 	br = branch --all
 	ssl = stash list

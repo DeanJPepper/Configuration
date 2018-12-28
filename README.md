@@ -1,14 +1,18 @@
 # Configuration
-Various aliases to save keystrokes and make development easier!
+Change to PowerShell prompt and new Git aliases to save keystrokes and make development easier!
 
-## Powershell
+## PowerShell
 
 ### Alias
 
 Creates an alias `g` for the `git` command.
 
+### Git Prompt
+
+Changes the prompt when in a Git repository to show the branch name, number of commits ahead/behind upstream and number of files added, modified, renamed, deleted and untracked.
+
 ### Installing
-Copy the function and alias from [Microsoft.PowerShell_profile.ps1](Microsoft.PowerShell_profile.ps1) to `%USERPROFILE%\Documents\WindowsPowerShell\Microsoft.PowerShell_profile.ps1` and restart Powershell.
+Copy the contents of [Microsoft.PowerShell_profile.ps1](Microsoft.PowerShell_profile.ps1) to `%USERPROFILE%\Documents\WindowsPowerShell\Microsoft.PowerShell_profile.ps1` and restart PowerShell.
 
 To enable script execution, the execution policy may need to be changed.
 ```
