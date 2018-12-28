@@ -34,21 +34,32 @@ function prompt {
 			Write-Host(" [") -nonewline
 		}
 		
-		# Status
-		if ($status["added"] -gt 0) {
-			Write-Host(' a' + $status["added"]) -nonewline -foregroundcolor Yellow
+		# Staged files
+		if ($status["stagedModified"] -gt 0) {
+			Write-Host(' m' + $status["stagedModified"]) -nonewline -foregroundcolor DarkGreen
 		}
-		if ($status["modified"] -gt 0) {
-			Write-Host(' m' + $status["modified"]) -nonewline -foregroundcolor Yellow
+		if ($status["stagedDeleted"] -gt 0) {
+			Write-Host(' d' + $status["stagedDeleted"]) -nonewline -foregroundcolor DarkGreen
 		}
-		if ($status["renamed"] -gt 0) {
-			Write-Host(' r' + $status["renamed"]) -nonewline -foregroundcolor Yellow
+		if ($status["stagedRenamed"] -gt 0) {
+			Write-Host(' r' + $status["stagedRenamed"]) -nonewline -foregroundcolor DarkGreen
 		}
-		if ($status["deleted"] -gt 0) {
-			Write-Host(' d' + $status["deleted"]) -nonewline -foregroundcolor Yellow
+		if ($status["stagedAdded"] -gt 0) {
+			Write-Host(' a' + $status["stagedAdded"]) -nonewline -foregroundcolor DarkGreen
 		}
-        if ($status["untracked"] -ne $FALSE) {
-            Write-Host(' !') -nonewline -foregroundcolor Red
+		# Unstaged files
+		if ($status["unstagedModified"] -gt 0) {
+			Write-Host(' m' + $status["unstagedModified"]) -nonewline -foregroundcolor Magenta
+		}
+		if ($status["unstagedDeleted"] -gt 0) {
+			Write-Host(' d' + $status["unstagedDeleted"]) -nonewline -foregroundcolor Magenta
+		}
+		if ($status["unstagedRenamed"] -gt 0) {
+			Write-Host(' r' + $status["unstagedRenamed"]) -nonewline -foregroundcolor Magenta
+		}
+		# Untracked files
+        if ($status["untracked"] -gt 0) {
+			Write-Host(' ?' + $status["untracked"]) -nonewline -foregroundcolor Magenta
         }
 		Write-Host(' ] ') -nonewline
 	} else {

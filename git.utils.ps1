@@ -34,11 +34,14 @@ function gitBranchName {
 function gitStatus {
     $ahead = 0
     $behind = 0
-    $added = 0
-    $modified = 0
-	$renamed = 0
-    $deleted = 0
-    $untracked = $FALSE
+    $stagedModified = 0
+    $stagedDeleted = 0
+	$stagedRenamed = 0
+    $stagedAdded = 0
+    $unstagedModified = 0
+    $unstagedDeleted = 0
+	$unstagedRenamed = 0
+    $untracked = 0
     
     $output = git status --short --branch
    
@@ -49,20 +52,32 @@ function gitStatus {
 			$behind = $matches["behind"]
 		}
 		else {
-			if ($_ -match "^[ ]?A") {
-				$added += 1
+			# Staged
+			if ($_ -match "^M") {
+				$stagedModified += 1
 			}
-			elseif ($_ -match "^[ ]?M") {
-				$modified += 1
+			elseif ($_ -match "^D") {
+				$stagedDeleted += 1
 			}
-			elseif ($_ -match "^[ ]?R") {
-				$renamed += 1
+			elseif ($_ -match "^R") {
+				$stagedRenamed += 1
 			}
-			elseif ($_ -match "^[ ]?D") {
-				$deleted += 1
+			elseif ($_ -match "^A") {
+				$stagedAdded += 1
 			}
-			elseif ($_ -match "^\?") {
-				$untracked = $TRUE
+			# Unstaged
+			if ($_ -match "^.{1}M") {
+				$unstagedModified += 1
+			}
+			elseif ($_ -match "^.{1}D") {
+				$unstagedDeleted += 1
+			}
+			elseif ($_ -match "^.{1}R") {
+				$unstagedRenamed += 1
+			}
+			# Untracked
+			if ($_ -match "^\?") {
+				$untracked += 1
 			}
 		}
     }
@@ -70,9 +85,12 @@ function gitStatus {
     return @{"branch" = $branch;
 			 "ahead" = $ahead;
              "behind" = $behind;
-             "added" = $added;
-             "modified" = $modified;
-             "renamed" = $renamed;
-             "deleted" = $deleted;
+             "stagedModified" = $stagedModified;
+             "stagedDeleted" = $stagedDeleted;
+             "stagedRenamed" = $stagedRenamed;
+             "stagedAdded" = $stagedAdded;
+             "unstagedModified" = $unstagedModified;
+             "unstagedDeleted" = $unstagedDeleted;
+             "unstagedRenamed" = $unstagedRenamed;
              "untracked" = $untracked;}
 }
