@@ -6,13 +6,13 @@ function fnGit {
 set-alias -name g -value fnGit
 
 function prompt {
+    # Path
+    $host.UI.RawUi.WindowTitle = $ExecutionContext.SessionState.Path.CurrentLocation
+
     if (gitRepository) {
         $status = gitStatus
         $currentBranch = $status["branch"]
 		
-		# Path
-		$host.UI.RawUi.WindowTitle = $ExecutionContext.SessionState.Path.CurrentLocation
-
 		# Branch (name and ahead/behind)
 		if(($status["ahead"] -gt 0) -and ($status["behind"] -gt 0)) {
 			Write-Host($currentBranch) -nonewline -foregroundcolor Red

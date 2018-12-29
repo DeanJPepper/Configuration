@@ -36,11 +36,11 @@ function gitStatus {
     $behind = 0
     $stagedModified = 0
     $stagedDeleted = 0
-	$stagedRenamed = 0
+    $stagedRenamed = 0
     $stagedAdded = 0
     $unstagedModified = 0
     $unstagedDeleted = 0
-	$unstagedRenamed = 0
+    $unstagedRenamed = 0
     $untracked = 0
     
     $output = git status --short --branch
@@ -83,7 +83,7 @@ function gitStatus {
     }
     
     return @{"branch" = $branch;
-			 "ahead" = $ahead;
+             "ahead" = $ahead;
              "behind" = $behind;
              "stagedModified" = $stagedModified;
              "stagedDeleted" = $stagedDeleted;
