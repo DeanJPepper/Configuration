@@ -46,7 +46,7 @@ function gitStatus {
     $output = git status --short --branch
    
     $output | foreach {
-		if ($_ -match "^## (No commits yet on )?(?<branch>[^.]+)(.*?\[(ahead (?<ahead>\d))?.*?(behind (?<behind>\d))?\])?") {
+		if ($_ -match "## (No commits yet on )?(?<branch>[^.]+)((.*?)\[(ahead (?<ahead>(\d)*))?(, )?(behind (?<behind>(\d)*))?\])?") {
 			$branch = $matches["branch"]
 			$ahead = $matches["ahead"]
 			$behind = $matches["behind"]
