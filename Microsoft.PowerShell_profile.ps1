@@ -6,14 +6,11 @@ function fnGit {
 Set-Alias -name g -value fnGit
 
 function prompt {
-    # Path
-    $host.UI.RawUi.WindowTitle = $ExecutionContext.SessionState.Path.CurrentLocation
-
     if (gitRepository) {
+		$host.UI.RawUi.WindowTitle = "[" + (gitRepositoryName) + "] " + $ExecutionContext.SessionState.Path.CurrentLocation
         $status = gitStatus
         $currentBranch = $status["branch"]
-		
-		
+				
 		# Branch (name and ahead/behind)
 		$ahead = ""
 		$behind = ""
@@ -76,6 +73,7 @@ function prompt {
 		Write-Host(' ] ') -nonewline
 		
 	} else {
+		$host.UI.RawUi.WindowTitle = $ExecutionContext.SessionState.Path.CurrentLocation
 		Write-Host "PS" $ExecutionContext.SessionState.Path.CurrentLocation -nonewline
 	}
 	return ">"

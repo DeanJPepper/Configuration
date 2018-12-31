@@ -17,6 +17,25 @@ function gitRepository {
     return $FALSE
 }
 
+# Returns the name of git repository
+function gitRepositoryName {
+    if ((Test-Path ".git") -eq $TRUE) {
+        return (Get-Item .).name
+    }
+    
+    $checkIn = (Get-Item .).parent
+    while ($checkIn -ne $NULL) {
+        $pathToTest = $checkIn.fullname + '/.git'
+        if ((Test-Path $pathToTest) -eq $TRUE) {
+            return $checkIn.name
+        } else {
+            $checkIn = $checkIn.parent
+        }
+    }
+    
+    return ""
+}
+
 # Extracts the current branch name
 function gitBranchName {
     $currentBranch = ''
