@@ -9,66 +9,29 @@ function prompt {
     if (gitRepository) {
 		$host.UI.RawUi.WindowTitle = "[" + (gitRepositoryName) + "] " + $ExecutionContext.SessionState.Path.CurrentLocation
         $status = gitStatus
-        $currentBranch = $status["branch"]
 				
-		# Branch (name and ahead/behind)
-		$ahead = ""
-		$behind = ""
-		if(($status["ahead"] -gt 0) -and ($status["behind"] -gt 0)) {
-			Write-Host($currentBranch) -nonewline -foregroundcolor Red
-			$ahead = " +" + $status["ahead"]
-			$behind = " -" + $status["behind"]
-		}
-		elseif($status["ahead"] -gt 0) {
-			Write-Host($currentBranch) -nonewline -foregroundcolor Red
-			$ahead = " +" + $status["ahead"]
-		}
-		elseif($status["behind"] -gt 0) {
-			Write-Host($currentBranch) -nonewline -foregroundcolor Cyan
-			$behind = " -" + $status["behind"]
+		# Branch name
+		if($status["aheadCount"] -gt 0) {
+			Write-Host($status["branch"]) -nonewline -foregroundcolor Red
+		} elseif($status["behind"] -gt 0) {
+			Write-Host($status["branch"]) -nonewline -foregroundcolor Cyan
 		} else {
-			Write-Host($currentBranch) -nonewline -foregroundcolor Green
-		}		
-		
-		# Staged files
-		$stagedFiles = ""
-		if ($status["stagedModified"] -gt 0) {
-			$stagedFiles += ' m' + $status["stagedModified"]
+			Write-Host($status["branch"]) -nonewline -foregroundcolor Green
 		}
-		if ($status["stagedDeleted"] -gt 0) {
-			$stagedFiles += ' d' + $status["stagedDeleted"]
-		}
-		if ($status["stagedRenamed"] -gt 0) {
-			$stagedFiles += ' r' + $status["stagedRenamed"]
-		}
-		if ($status["stagedAdded"] -gt 0) {
-			$stagedFiles += ' a' + $status["stagedAdded"]
-		}
-		
-		# Unstaged files
-		$unstagedFiles = ""
-		if ($status["unstagedModified"] -gt 0) {
-			$unstagedFiles += ' m' + $status["unstagedModified"]
-		}
-		if ($status["unstagedDeleted"] -gt 0) {
-			$unstagedFiles += ' d' + $status["unstagedDeleted"]
-		}
-		if ($status["unstagedRenamed"] -gt 0) {
-			$unstagedFiles += ' r' + $status["unstagedRenamed"]
-		}
-        if ($status["untracked"] -gt 0) {
-			$unstagedFiles += ' ?' + $status["untracked"]
-        }
-		
+				
 		# Status
+		$aheadMsg = $status["aheadMsg"]
+		$behindMsg = $status["behindMsg"]
+		$stagedMsg = $status["stagedMsg"]
+		$unstagedMsg = $status["unstagedMsg"]
 		Write-Host(" [") -nonewline
-		if (($ahead -eq "") -and ($behind -eq "") -and ($stagedFiles -eq "") -and ($unstagedFiles -eq "")) {
+		if (($aheadMsg -eq "") -and ($behindMsg -eq "") -and ($stagedMsg -eq "") -and ($unstagedMsg -eq "")) {
 			Write-Host(" clean") -nonewline -foregroundcolor Yellow
 		} else {
-			Write-Host($ahead) -nonewline -foregroundcolor Red
-			Write-Host($behind) -nonewline -foregroundcolor Cyan
-			Write-Host($stagedFiles) -nonewline -foregroundcolor DarkGreen
-			Write-Host($unstagedFiles) -nonewline -foregroundcolor Magenta
+			Write-Host($aheadMsg) -nonewline -foregroundcolor Red
+			Write-Host($behindMsg) -nonewline -foregroundcolor Cyan
+			Write-Host($stagedMsg) -nonewline -foregroundcolor DarkGreen
+			Write-Host($unstagedMsg) -nonewline -foregroundcolor Magenta
 		}
 		Write-Host(' ] ') -nonewline
 		
