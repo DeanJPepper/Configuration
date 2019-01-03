@@ -1,3 +1,9 @@
+# Creates alias for git
+function gitAlias {
+	git $args 
+}
+Set-Alias -name g -value gitAlias
+
 # Returns whether the current directory is a git repository
 function gitRepository {
     if ((Test-Path ".git") -eq $TRUE) {
@@ -6,7 +12,7 @@ function gitRepository {
     
     $checkIn = (Get-Item .).parent
     while ($checkIn -ne $NULL) {
-        $pathToTest = $checkIn.fullname + '/.git'
+        $pathToTest = $checkIn.fullname + "/.git"
         if ((Test-Path $pathToTest) -eq $TRUE) {
             return $TRUE
         } else {
@@ -25,7 +31,7 @@ function gitRepositoryName {
     
     $checkIn = (Get-Item .).parent
     while ($checkIn -ne $NULL) {
-        $pathToTest = $checkIn.fullname + '/.git'
+        $pathToTest = $checkIn.fullname + "/.git"
         if ((Test-Path $pathToTest) -eq $TRUE) {
             return $checkIn.name
         } else {
@@ -36,9 +42,9 @@ function gitRepositoryName {
     return ""
 }
 
-# Extracts the current branch name
+# Extracts name of the checked out branch
 function gitBranchName {
-    $currentBranch = ''
+    $currentBranch = ""
     git branch | foreach {
         if ($_ -match "^\* (.*)") {
             $currentBranch += $matches[1]
@@ -47,7 +53,7 @@ function gitBranchName {
     return $currentBranch
 }
 
-# Extracts details about branch status compared to upstream and any changed files
+# Extracts number of commits ahead/behind origin and number of any staged/unstaged files
 function gitStatus {
 	$branch = ""
     $aheadMsg = ""
@@ -81,31 +87,39 @@ function gitStatus {
 			}
 		}
 		else {
+			$counted = $FALSE
 			# Staged
 			if ($_ -match "^M") {
 				$stagedCountModified += 1
+				$counted = $TRUE
 			}
 			elseif ($_ -match "^D") {
 				$stagedCountDeleted += 1
+				$counted = $TRUE
 			}
 			elseif ($_ -match "^R") {
 				$stagedCountRenamed += 1
+				$counted = $TRUE
 			}
 			elseif ($_ -match "^A") {
 				$stagedCountAdded += 1
+				$counted = $TRUE
 			}
 			# Unstaged
 			if ($_ -match "^.{1}M") {
 				$unstagedCountModified += 1
+				$counted = $TRUE
 			}
 			elseif ($_ -match "^.{1}D") {
 				$unstagedCountDeleted += 1
+				$counted = $TRUE
 			}
 			elseif ($_ -match "^.{1}R") {
 				$unstagedCountRenamed += 1
+				$counted = $TRUE
 			}
 			# Untracked
-			if ($_ -match "^\?") {
+			if ($counted -eq $FALSE) {
 				$untrackedCount += 1
 			}
 		}
@@ -113,30 +127,30 @@ function gitStatus {
 	
 	# Staged
 	if ($stagedCountModified -gt 0) {
-		$stagedMsg += ' m' + $stagedCountModified
+		$stagedMsg += " m" + $stagedCountModified
 	}
 	if ($stagedCountDeleted -gt 0) {
-		$stagedMsg += ' d' + $stagedCountDeleted
+		$stagedMsg += " d" + $stagedCountDeleted
 	}
 	if ($stagedCountRenamed -gt 0) {
-		$stagedMsg += ' r' + $stagedCountRenamed
+		$stagedMsg += " r" + $stagedCountRenamed
 	}
 	if ($stagedCountAdded -gt 0) {
-		$stagedMsg += ' a' + $stagedCountAdded
+		$stagedMsg += " a" + $stagedCountAdded
 	}
 	
 	# Unstaged
 	if ($unstagedCountModified -gt 0) {
-		$unstagedMsg += ' m' + $unstagedCountModified
+		$unstagedMsg += " m" + $unstagedCountModified
 	}
 	if ($unstagedCountDeleted -gt 0) {
-		$unstagedMsg += ' d' + $unstagedCountDeleted
+		$unstagedMsg += " d" + $unstagedCountDeleted
 	}
 	if ($unstagedCountRenamed -gt 0) {
-		$unstagedMsg += ' r' + $unstagedCountRenamed
+		$unstagedMsg += " r" + $unstagedCountRenamed
 	}
 	if ($untrackedCount -gt 0) {
-		$unstagedMsg += ' ?' + $untrackedCount
+		$unstagedMsg += " ?" + $untrackedCount
 	}
     
     return @{"branch" = $branch;
@@ -154,4 +168,55 @@ function gitStatus {
              "unstagedCountDeleted" = $unstagedCountDeleted;
              "unstagedCountRenamed" = $unstagedCountRenamed;
              "untrackedCount" = $untrackedCount;}
+}
+
+# Updates the prompt to show the branch name, number of commits ahead/behind origin and number of any staged/unstaged files
+function prompt {
+    if (gitRepository) {
+		$host.UI.RawUi.WindowTitle = "[" + (gitRepositoryName) + "] " + $ExecutionContext.SessionState.Path.CurrentLocation
+		$status = gitStatus
+				
+		# Branch name
+		if($status["aheadCount"] -gt 0) {
+			Write-Host $status["branch"] -nonewline -foregroundcolor Red
+		} elseif($status["behind"] -gt 0) {
+			Write-Host $status["branch"] -nonewline -foregroundcolor Cyan
+		} else {
+			Write-Host $status["branch"] -nonewline -foregroundcolor Green
+		}
+				
+		# Status
+		Write-Host "[" -nonewline
+		$aheadMsg = $status["aheadMsg"]
+		$behindMsg = $status["behindMsg"]
+		$stagedMsg = $status["stagedMsg"]
+		$unstagedMsg = $status["unstagedMsg"]
+		if (($aheadMsg -eq "") -and ($behindMsg -eq "") -and ($stagedMsg -eq "") -and ($unstagedMsg -eq "")) {
+			Write-Host "clean" -nonewline -foregroundcolor Yellow
+		} else {
+			# Ahead
+			if ($aheadMsg -ne "") {
+				Write-Host $aheadMsg -nonewline -foregroundcolor Red
+			}			
+			# Behind
+			if ($behindMsg -ne "") {
+				Write-Host $behindMsg -nonewline -foregroundcolor Cyan
+			}									
+			# Staged
+			if ($stagedMsg -ne "") {
+				Write-Host $stagedMsg -nonewline -foregroundcolor DarkGreen
+			}			
+			# Unstaged
+			if ($unstagedMsg -ne "") {
+				Write-Host $unstagedMsg -nonewline -foregroundcolor Magenta
+			}
+			Write-Host " " -nonewline
+		}
+		Write-Host "]" -nonewline
+		
+	} else {
+		$host.UI.RawUi.WindowTitle = $ExecutionContext.SessionState.Path.CurrentLocation
+		Write-Host "PS" $ExecutionContext.SessionState.Path.CurrentLocation -nonewline
+	}
+	return "> "
 }
