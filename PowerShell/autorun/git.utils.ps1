@@ -56,6 +56,7 @@ function gitBranchName {
 # Extracts number of commits ahead/behind origin and number of any staged/unstaged files
 function gitStatus {
 	$branch = ""
+	$branchTracking = $false
     $aheadMsg = ""
     $aheadCount = 0
     $behindMsg = ""
@@ -74,11 +75,16 @@ function gitStatus {
     $output = git status --short --branch
    
     $output | foreach {
-		if ($_ -match "## (No commits yet on )?(?<branch>[^.]+)((.*?)\[(ahead (?<ahead>(\d)*))?(, )?(behind (?<behind>(\d)*))?\])?") {	
-			$branch = $matches["branch"]			
+		if ($_ -match "## (No commits yet on )?(?<branch>[^\[]+)((.*?)\[(ahead (?<ahead>(\d)*))?(, )?(behind (?<behind>(\d)*))?\])?") {	
+			$branch = $matches["branch"]
 			$aheadCount = $matches["ahead"]
 			$behindCount = $matches["behind"]
 			
+			$posTracking = $branch.IndexOf('...')
+			if ($posTracking -gt -1) {
+				$branchTracking = $true
+				$branch = $branch.SubString(0, $posTracking)
+			}
 			if ($aheadCount -gt 0) {
 				$aheadMsg = " +" + $aheadCount
 			}
@@ -154,6 +160,7 @@ function gitStatus {
 	}
     
     return @{"branch" = $branch;
+             "branchTracking" = $branchTracking;
              "aheadMsg" = $aheadMsg;
              "aheadCount" = $aheadCount;
              "behindMsg" = $behindMsg;
@@ -177,7 +184,10 @@ function prompt {
 		$status = gitStatus
 				
 		# Branch name
-		if($status["aheadCount"] -gt 0) {
+		if ($status["branchTracking"] -eq $true) {
+			Write-Host "*" -nonewline
+		}
+		if ($status["aheadCount"] -gt 0) {
 			Write-Host $status["branch"] -nonewline -foregroundcolor Red
 		} elseif($status["behind"] -gt 0) {
 			Write-Host $status["branch"] -nonewline -foregroundcolor Cyan
