@@ -187,12 +187,16 @@ function prompt {
 		if ($status["branchTracking"] -eq $true) {
 			Write-Host "*" -nonewline
 		}
+		$branchName = $status["branch"];
+		if ($branchName.Length -gt 30) {
+			$branchName = $branchName.SubString(0, 27) + "..."
+		}
 		if ($status["aheadCount"] -gt 0) {
-			Write-Host $status["branch"] -nonewline -foregroundcolor Red
+			Write-Host $branchName -nonewline -foregroundcolor Red
 		} elseif($status["behind"] -gt 0) {
-			Write-Host $status["branch"] -nonewline -foregroundcolor Cyan
+			Write-Host $branchName -nonewline -foregroundcolor Cyan
 		} else {
-			Write-Host $status["branch"] -nonewline -foregroundcolor Green
+			Write-Host $branchName -nonewline -foregroundcolor Green
 		}
 				
 		# Status
