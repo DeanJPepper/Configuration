@@ -18,6 +18,7 @@
 	ad = add .
 	rs = reset .
 	cm = commit -m
+	cma = !git add . && git commit -m
 	ssp = stash push -m
 	brd = branch -d
 	

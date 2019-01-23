@@ -7,19 +7,9 @@ Changes PowerShell prompt and adds Git aliases to save keystrokes and make devel
 
 Creates an alias `g` for the `git` command.
 
-### Git Prompt
+### Prompt
 
 Changes the prompt when in a Git repository to show the branch name, number of commits ahead/behind origin and number of any staged/unstaged files.
-
-### Installing
-Run the [deploy.ps1](deploy.ps1) file and restart PowerShell.
-
-Note: This will NOT overwrite the `%USERPROFILE%\Documents\WindowsPowerShell\Microsoft.PowerShell_profile.ps1` file if it already exists so the contents will have to be manually added.
-
-To enable script execution, the execution policy may need to be changed.
-```
-Set-ExecutionPolicy unrestricted
-```
 
 ## Git
 
@@ -40,12 +30,19 @@ View the log in a tree with local and remote branches plus any stashes.
 g lg
 ```
 
-### Installing
+## Installing
 
-Open the relevant configuration and copy the contents of [.gitconfig](.gitconfig) to the end of the file.
+### Initial Deploy
+1. Run [deploy.ps1](deploy.ps1). This will NOT overwrite the `%USERPROFILE%\Documents\WindowsPowerShell\Microsoft.PowerShell_profile.ps1` file if it already exists so the contents of [PowerShell\profile.ps1](PowerShell\profile.ps1.ps1) will have to be manually added.
+
+2. Open the global Git configuration with ```config --global -e``` and copy the below contents to the end of the file.
 ```
-git config -e --local
-git config -e --global
-git config -e --system
+[include]
+	path = deanjpepper.gitconfig
 ```
 
+Note: To enable script execution, the execution policy may need to be changed via ```Set-ExecutionPolicy unrestricted```.
+
+### Redeploy
+1. Run [deploy.ps1](deploy.ps1)
+2. Run `. $PROFILE`
