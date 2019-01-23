@@ -1,36 +1,40 @@
 [push]
 	default = current
-[pull]
-	default = current
 [alias]
-	# config
-	cfg = config --global -e
+	# view
+	st = status --short --branch
+	lg = !git st && echo "" && git log --oneline --graph --decorate --all -n 15
+	br = branch --all
+	ssl = stash list
 	
 	# start work
 	ch = "!f() { git checkout "${1-develop}"; }; f"
 	chb = checkout -b
-	chp = "!f() { git checkout -b "${1}" && git push; }; f"
+	chg = "!f() { git branch | grep "${1}" --ignore-case | xargs git checkout ; }; f"
 	ssa = stash apply
 	sspp = stash pop
 	
 	# stop work
+	ad = add .
+	rs = reset .
 	cm = commit -m
-	cma = !git add . && git commit -m
 	ssp = stash push -m
-	sspa = !git add . && git stash push -m
 	brd = branch -d
+	
+	# rebase/merge
+	rb = "!f() { git rebase -i "${1-develop}"; }; f"
+	rbc = rebase --continue
+	mg = "!f() { git merge "${1-develop}"; }; f"
+	mgc = merge --continue
+	cp = cherry-pick
+	cpn = cherry-pick --no-commit
+	
+	# correction
+	cman = commit --amend --no-edit
+	cmf = commit --fixup
 	
 	# remote
 	ft = fetch --prune
 	pl = pull --prune
 	ps = push --set-upstream
-	
-	# merge
-	mg = "!f() { git merge "${1-develop}"; }; f"
-	mgc = !git add . && git merge --continue
-	
-	# view
-	st = status --short
-	lg = !git st && git log --oneline --graph --decorate --all -n 15
-	br = branch --all
-	ssl = stash list
+	psf = push --force-with-lease
