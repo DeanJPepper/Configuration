@@ -18,19 +18,21 @@
 	ad = add .
 	rs = reset .
 	cm = commit -m
-	cma = !git add . && git commit -m
 	ssp = stash push -m
 	brd = branch -d
 	
 	# rebase/merge
 	rb = "!f() { git rebase -i "${1-develop}"; }; f"
 	rbc = rebase --continue
+	rba = rebase --abort
 	mg = "!f() { git merge "${1-develop}"; }; f"
 	mgc = merge --continue
+	mga = merge --abort
 	cp = cherry-pick
 	cpn = cherry-pick --no-commit
 	
 	# correction
+	cma = commit --amend
 	cman = commit --amend --no-edit
 	cmf = commit --fixup
 	
