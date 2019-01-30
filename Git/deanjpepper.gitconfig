@@ -5,7 +5,7 @@
 [alias]
 	# view
 	st = status --short --branch
-	lg = !git st && echo "" && git log --oneline --graph --decorate --all -n 15
+	lg = !git st && echo "" && git log --oneline --graph --decorate --all -n 15 --pretty='%C(red)%h%C(reset) %C(green)%an%C(reset) %C(cyan)%cr%C(auto)%d%C(reset) %n%s'
 	br = branch
 	bra = branch --all
 	ssl = stash list
@@ -34,7 +34,7 @@
 	cp = cherry-pick
 	cpn = cherry-pick --no-commit
 	
-	# correction
+	# corrections
 	cma = commit --amend --reset-author
 	cman = commit --amend --reset-author --no-edit
 	cmf = commit --fixup
