@@ -6,7 +6,8 @@
 	# view
 	st = status --short --branch
 	lg = !git st && echo "" && git log --oneline --graph --decorate --all -n 15
-	br = branch --all
+	br = branch
+	bra = branch --all
 	ssl = stash list
 	
 	# start work
@@ -34,8 +35,8 @@
 	cpn = cherry-pick --no-commit
 	
 	# correction
-	cma = commit --amend
-	cman = commit --amend --no-edit
+	cma = commit --amend --reset-author
+	cman = commit --amend --reset-author --no-edit
 	cmf = commit --fixup
 	
 	# remote
