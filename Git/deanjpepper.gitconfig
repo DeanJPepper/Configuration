@@ -5,7 +5,8 @@
 [alias]
 	# view
 	st = status --short --branch
-	lg = log --oneline --graph --decorate --all -n 15 --pretty='%C(red)%h%C(reset) %C(green)%an%C(reset) %C(cyan)%cr%C(auto)%d%C(reset) %n%s'
+	lg = log --oneline --graph --decorate -n 15 --pretty='%C(red)%h%C(reset) %C(green)%an%C(reset) %C(cyan)%cr%C(auto)%d%C(reset) %n%s'
+	lga = log --oneline --graph --decorate --all -n 15 --pretty='%C(red)%h%C(reset) %C(green)%an%C(reset) %C(cyan)%cr%C(auto)%d%C(reset) %n%s'
 	br = branch
 	bra = branch --all
 	ssl = stash list
