@@ -180,23 +180,25 @@ function gitStatus {
 # Updates the prompt to show the branch name, number of commits ahead/behind origin and number of any staged/unstaged files
 function prompt {
     if (gitRepository) {
-		$host.UI.RawUi.WindowTitle = "[" + (gitRepositoryName) + "] " + $ExecutionContext.SessionState.Path.CurrentLocation
 		$status = gitStatus
 				
-		# Branch name
+		# Tracking remote
 		if ($status["branchTracking"] -eq $true) {
 			Write-Host "*" -nonewline
 		}
+
+		# Branch name
 		$branchName = $status["branch"];
+		$branchNameShort = $branchName
 		if ($branchName.Length -gt 30) {
-			$branchName = $branchName.SubString(0, 27) + "..."
+			$branchNameShort = $branchName.SubString(0, 27) + "..."
 		}
 		if ($status["aheadCount"] -gt 0) {
-			Write-Host $branchName -nonewline -foregroundcolor Red
+			Write-Host $branchNameShort -nonewline -foregroundcolor Red
 		} elseif($status["behind"] -gt 0) {
-			Write-Host $branchName -nonewline -foregroundcolor Cyan
+			Write-Host $branchNameShort -nonewline -foregroundcolor Cyan
 		} else {
-			Write-Host $branchName -nonewline -foregroundcolor Green
+			Write-Host $branchNameShort -nonewline -foregroundcolor Green
 		}
 				
 		# Status
@@ -228,6 +230,9 @@ function prompt {
 		}
 		Write-Host "]" -nonewline
 		
+		# Title
+		$host.UI.RawUi.WindowTitle = "[" + (gitRepositoryName) + "] (" + ($branchName) + ") " + $ExecutionContext.SessionState.Path.CurrentLocation
+
 	} else {
 		$host.UI.RawUi.WindowTitle = $ExecutionContext.SessionState.Path.CurrentLocation
 		Write-Host "PS" $ExecutionContext.SessionState.Path.CurrentLocation -nonewline
