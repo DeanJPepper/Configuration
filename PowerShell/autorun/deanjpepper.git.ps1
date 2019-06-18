@@ -5,15 +5,14 @@ function gitAlias {
 Set-Alias -name g -value gitAlias
 
 # Returns whether the current directory is a git repository
-function gitRepository {
+function gitIsRepository {
     if ((Test-Path ".git") -eq $TRUE) {
         return $TRUE
     }
     
     $checkIn = (Get-Item .).parent
     while ($checkIn -ne $NULL) {
-        $pathToTest = $checkIn.fullname + "/.git"
-        if ((Test-Path $pathToTest) -eq $TRUE) {
+        if ((Test-Path ($checkIn.fullname + "/.git")) -eq $TRUE) {
             return $TRUE
         } else {
             $checkIn = $checkIn.parent
@@ -31,10 +30,29 @@ function gitRepositoryName {
     
     $checkIn = (Get-Item .).parent
     while ($checkIn -ne $NULL) {
-        $pathToTest = $checkIn.fullname + "/.git"
-        if ((Test-Path $pathToTest) -eq $TRUE) {
+        if ((Test-Path ($checkIn.fullname + "/.git")) -eq $TRUE) {
             return $checkIn.name
         } else {
+            $checkIn = $checkIn.parent
+        }
+    }
+    
+    return ""
+}
+
+# Returns the name of git sub-directory
+function gitSubDirectoryName {
+    if ((Test-Path ".git") -eq $TRUE) {
+        return ""
+    }
+    
+	$subdirectory = (Get-Item .).name
+    $checkIn = (Get-Item .).parent
+    while ($checkIn -ne $NULL) {
+        if ((Test-Path ($checkIn.fullname + "/.git")) -eq $TRUE) {
+            return $subdirectory
+        } else {
+			$subdirectory = $checkIn.name + "\" + $subdirectory
             $checkIn = $checkIn.parent
         }
     }
@@ -188,9 +206,9 @@ function gitCleanup {
 
 # Updates the prompt to show the branch name, number of commits ahead/behind origin and number of any staged/unstaged files
 function prompt {
-    if (gitRepository) {
+    if (gitIsRepository) {
 		$status = gitStatus
-				
+
 		# Tracking remote
 		if ($status["branchTracking"] -eq $true) {
 			Write-Host "*" -nonewline
@@ -199,7 +217,7 @@ function prompt {
 		# Branch name
 		$branchName = $status["branch"];
 		$branchNameShort = $branchName
-		if ($branchName.Length -gt 30) {
+		if ($branchName.Length -gt 50) {
 			$branchNameShort = $branchName.SubString(0, 27) + "..."
 		}
 		if ($status["aheadCount"] -gt 0) {
@@ -209,7 +227,7 @@ function prompt {
 		} else {
 			Write-Host $branchNameShort -nonewline -foregroundcolor Green
 		}
-				
+		
 		# Status
 		Write-Host "[" -nonewline
 		$aheadMsg = $status["aheadMsg"]
@@ -238,6 +256,9 @@ function prompt {
 			Write-Host " " -nonewline
 		}
 		Write-Host "]" -nonewline
+		
+		# Sub-Directory
+		Write-Host (gitSubDirectoryName) -nonewline -foregroundcolor darkgray
 		
 		# Title
 		$host.UI.RawUi.WindowTitle = "[" + (gitRepositoryName) + "] (" + ($branchName) + ") " + $ExecutionContext.SessionState.Path.CurrentLocation
