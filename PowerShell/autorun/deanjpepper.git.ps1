@@ -177,6 +177,15 @@ function gitStatus {
              "untrackedCount" = $untrackedCount;}
 }
 
+# Cleans up the local repo by deleting branches which have been merged
+function gitCleanup {
+    git branch | foreach {
+        if ($_ -match "^  ((bugfix|feature)/(.*))") {
+			git branch --delete $matches[1]
+        }
+    }
+}
+
 # Updates the prompt to show the branch name, number of commits ahead/behind origin and number of any staged/unstaged files
 function prompt {
     if (gitRepository) {
