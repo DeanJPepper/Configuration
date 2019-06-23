@@ -18,11 +18,14 @@ Changes the prompt when in a Git repository to show the branch name, number of c
 Checkout develop (or a specified branch).
 ```
 g ch
+g ch feature/api
 ```
 
-Add all changes to the index and create a commit.
+Add all changes to the index, commit changes and push to origin.
 ```
-g cma "It now works"
+g ad
+g cm "Added amazing new feature to API."
+g ps
 ```
 
 View the log in a tree with local and remote branches plus any stashes.
