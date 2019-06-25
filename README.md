@@ -7,6 +7,13 @@ Changes PowerShell prompt and adds Git aliases to save keystrokes and make devel
 
 Creates an alias `g` for the `git` command.
 
+### Functions
+
+Adds functions to the prompt.
+`newps` Starts a new instance of PowerShell in the current directory.
+`ex` Opens Windows Explorer in the current directory.
+`mkdircd` Creates a directory and changes to that directory.
+
 ### Prompt
 
 Changes the prompt when in a Git repository to show the branch name, number of commits ahead/behind origin and number of any staged/unstaged files.
