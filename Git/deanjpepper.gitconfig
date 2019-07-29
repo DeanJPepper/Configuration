@@ -24,6 +24,7 @@
 	cm = commit -m
 	ssp = stash push -m
 	brd = branch -d
+	brdd = branch -D
 	
 	# rebase/merge
 	rb = "!f() { git rebase -i "${1-develop}"; }; f"

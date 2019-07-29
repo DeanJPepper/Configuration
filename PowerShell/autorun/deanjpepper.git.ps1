@@ -198,7 +198,7 @@ function gitStatus {
 # Cleans up the local repo by deleting branches which have been merged
 function gitCleanup {
     git branch | foreach {
-        if ($_ -match "^  ((bugfix|feature)/(.*))") {
+        if ($_ -match "^  ((feature|bugfix|hotfix)/(.*))") {
 			git branch --delete $matches[1]
         }
     }
