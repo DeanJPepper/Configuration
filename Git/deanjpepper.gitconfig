@@ -34,6 +34,7 @@
 	mgc = merge --continue
 	mga = merge --abort
 	cp = cherry-pick
+	cpc = cherry-pick --continue
 	cpn = cherry-pick --no-commit
 	
 	# corrections
