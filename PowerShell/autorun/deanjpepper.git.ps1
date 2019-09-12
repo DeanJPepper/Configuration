@@ -4,7 +4,7 @@ function gitAlias {
 }
 Set-Alias -name g -value gitAlias
 
-# Returns whether the current directory is a git repository
+# Returns whether the current directory a git repository (or within a git repository)
 function gitIsRepository {
     if ((Test-Path ".git") -eq $TRUE) {
         return $TRUE
@@ -60,154 +60,149 @@ function gitSubDirectoryName {
     return ""
 }
 
-# Extracts name of the checked out branch
+# Returns name of the checked out branch
 function gitBranchName {
-    $currentBranch = ""
-    git branch | foreach {
-        if ($_ -match "^\* (.*)") {
-            $currentBranch += $matches[1]
-        }
-    }
-    return $currentBranch
-}
-
-# Extracts number of commits ahead/behind origin and number of any staged/unstaged files
-function gitStatus {
-	$branch = ""
-	$branchTracking = $false
-    $aheadMsg = ""
-    $aheadCount = 0
-    $behindMsg = ""
-    $behindCount = 0
-	$stagedMsg = ""
-    $stagedCountModified = 0
-    $stagedCountDeleted = 0
-    $stagedCountRenamed = 0
-    $stagedCountAdded = 0
-	$unstagedMsg = ""
-    $unstagedCountModified = 0
-    $unstagedCountDeleted = 0
-    $unstagedCountRenamed = 0
-    $untrackedCount = 0
-    
-    $output = git status --short --branch
-   
-    $output | foreach {
-		if ($_ -match "## (No commits yet on )?(?<branch>[^\[]+)((.*?)\[(ahead (?<ahead>(\d)*))?(, )?(behind (?<behind>(\d)*))?\])?") {	
-			$branch = $matches["branch"]
-			$aheadCount = $matches["ahead"]
-			$behindCount = $matches["behind"]
-			
-			$posTracking = $branch.IndexOf('...')
-			if ($posTracking -gt -1) {
-				$branchTracking = $true
-				$branch = $branch.SubString(0, $posTracking)
-			}
-			if ($aheadCount -gt 0) {
-				$aheadMsg = " +" + $aheadCount
-			}
-			if ($behindCount -gt 0) {
-				$behindMsg = " -" + $behindCount
-			}
-		}
-		else {
-			$counted = $FALSE
-			# Staged
-			if ($_ -match "^M") {
-				$stagedCountModified += 1
-				$counted = $TRUE
-			}
-			elseif ($_ -match "^D") {
-				$stagedCountDeleted += 1
-				$counted = $TRUE
-			}
-			elseif ($_ -match "^R") {
-				$stagedCountRenamed += 1
-				$counted = $TRUE
-			}
-			elseif ($_ -match "^A") {
-				$stagedCountAdded += 1
-				$counted = $TRUE
-			}
-			# Unstaged
-			if ($_ -match "^.{1}M") {
-				$unstagedCountModified += 1
-				$counted = $TRUE
-			}
-			elseif ($_ -match "^.{1}D") {
-				$unstagedCountDeleted += 1
-				$counted = $TRUE
-			}
-			elseif ($_ -match "^.{1}R") {
-				$unstagedCountRenamed += 1
-				$counted = $TRUE
-			}
-			# Untracked
-			if ($counted -eq $FALSE) {
-				$untrackedCount += 1
-			}
-		}
-    }
-	
-	# Staged
-	if ($stagedCountModified -gt 0) {
-		$stagedMsg += " m" + $stagedCountModified
-	}
-	if ($stagedCountDeleted -gt 0) {
-		$stagedMsg += " d" + $stagedCountDeleted
-	}
-	if ($stagedCountRenamed -gt 0) {
-		$stagedMsg += " r" + $stagedCountRenamed
-	}
-	if ($stagedCountAdded -gt 0) {
-		$stagedMsg += " a" + $stagedCountAdded
-	}
-	
-	# Unstaged
-	if ($unstagedCountModified -gt 0) {
-		$unstagedMsg += " m" + $unstagedCountModified
-	}
-	if ($unstagedCountDeleted -gt 0) {
-		$unstagedMsg += " d" + $unstagedCountDeleted
-	}
-	if ($unstagedCountRenamed -gt 0) {
-		$unstagedMsg += " r" + $unstagedCountRenamed
-	}
-	if ($untrackedCount -gt 0) {
-		$unstagedMsg += " ?" + $untrackedCount
-	}
-    
-    return @{"branch" = $branch;
-             "branchTracking" = $branchTracking;
-             "aheadMsg" = $aheadMsg;
-             "aheadCount" = $aheadCount;
-             "behindMsg" = $behindMsg;
-             "behindCount" = $behindCount;
-             "stagedMsg" = $stagedMsg;
-             "stagedCountModified" = $stagedCountModified;
-             "stagedCountDeleted" = $stagedCountDeleted;
-             "stagedCountRenamed" = $stagedCountRenamed;
-             "stagedCountAdded" = $stagedCountAdded;
-             "unstagedMsg" = $unstagedMsg;
-             "unstagedCountModified" = $unstagedCountModified;
-             "unstagedCountDeleted" = $unstagedCountDeleted;
-             "unstagedCountRenamed" = $unstagedCountRenamed;
-             "untrackedCount" = $untrackedCount;}
-}
-
-# Cleans up the local repo by deleting branches which have been merged
-function gitClean {
-    git branch | foreach {
-        if ($_ -match "^  ((feature|bugfix|hotfix)/(.*))") {
-			git branch --delete $matches[1]
-        }
-    }
-}
-
-# Updates the prompt to show the branch name, number of commits ahead/behind origin and number of any staged/unstaged files
-function prompt {
     if (gitIsRepository) {
-		$status = gitStatus
+		$currentBranch = ""
+		git branch | foreach {
+			if ($_ -match "^\* (.*)") {
+				$currentBranch += $matches[1]
+			}
+		}
+		return $currentBranch
+	}
+}
+
+# Returns number of commits ahead/behind origin and number of any staged/unstaged files
+function gitStatusDetail {
+    if (gitIsRepository) {
+		$branch = ""
+		$branchTracking = $false
+		$aheadMsg = ""
+		$aheadCount = 0
+		$behindMsg = ""
+		$behindCount = 0
+		$stagedMsg = ""
+		$stagedCountModified = 0
+		$stagedCountDeleted = 0
+		$stagedCountRenamed = 0
+		$stagedCountAdded = 0
+		$unstagedMsg = ""
+		$unstagedCountModified = 0
+		$unstagedCountDeleted = 0
+		$unstagedCountRenamed = 0
+		$untrackedCount = 0
+		
+		$output = git status --short --branch
+	   
+		$output | foreach {
+			if ($_ -match "## (No commits yet on )?(?<branch>[^\[]+)((.*?)\[(ahead (?<ahead>(\d)*))?(, )?(behind (?<behind>(\d)*))?\])?") {	
+				$branch = $matches["branch"]
+				$aheadCount = $matches["ahead"]
+				$behindCount = $matches["behind"]
+				
+				$posTracking = $branch.IndexOf('...')
+				if ($posTracking -gt -1) {
+					$branchTracking = $true
+					$branch = $branch.SubString(0, $posTracking)
+				}
+				if ($aheadCount -gt 0) {
+					$aheadMsg = " +" + $aheadCount
+				}
+				if ($behindCount -gt 0) {
+					$behindMsg = " -" + $behindCount
+				}
+			}
+			else {
+				$counted = $FALSE
+				# Staged
+				if ($_ -match "^M") {
+					$stagedCountModified += 1
+					$counted = $TRUE
+				}
+				elseif ($_ -match "^D") {
+					$stagedCountDeleted += 1
+					$counted = $TRUE
+				}
+				elseif ($_ -match "^R") {
+					$stagedCountRenamed += 1
+					$counted = $TRUE
+				}
+				elseif ($_ -match "^A") {
+					$stagedCountAdded += 1
+					$counted = $TRUE
+				}
+				# Unstaged
+				if ($_ -match "^.{1}M") {
+					$unstagedCountModified += 1
+					$counted = $TRUE
+				}
+				elseif ($_ -match "^.{1}D") {
+					$unstagedCountDeleted += 1
+					$counted = $TRUE
+				}
+				elseif ($_ -match "^.{1}R") {
+					$unstagedCountRenamed += 1
+					$counted = $TRUE
+				}
+				# Untracked
+				if ($counted -eq $FALSE) {
+					$untrackedCount += 1
+				}
+			}
+		}
+		
+		# Staged
+		if ($stagedCountModified -gt 0) {
+			$stagedMsg += " m" + $stagedCountModified
+		}
+		if ($stagedCountDeleted -gt 0) {
+			$stagedMsg += " d" + $stagedCountDeleted
+		}
+		if ($stagedCountRenamed -gt 0) {
+			$stagedMsg += " r" + $stagedCountRenamed
+		}
+		if ($stagedCountAdded -gt 0) {
+			$stagedMsg += " a" + $stagedCountAdded
+		}
+		
+		# Unstaged
+		if ($unstagedCountModified -gt 0) {
+			$unstagedMsg += " m" + $unstagedCountModified
+		}
+		if ($unstagedCountDeleted -gt 0) {
+			$unstagedMsg += " d" + $unstagedCountDeleted
+		}
+		if ($unstagedCountRenamed -gt 0) {
+			$unstagedMsg += " r" + $unstagedCountRenamed
+		}
+		if ($untrackedCount -gt 0) {
+			$unstagedMsg += " ?" + $untrackedCount
+		}
+		
+		return @{"branch" = $branch;
+				 "branchTracking" = $branchTracking;
+				 "aheadMsg" = $aheadMsg;
+				 "aheadCount" = $aheadCount;
+				 "behindMsg" = $behindMsg;
+				 "behindCount" = $behindCount;
+				 "stagedMsg" = $stagedMsg;
+				 "stagedCountModified" = $stagedCountModified;
+				 "stagedCountDeleted" = $stagedCountDeleted;
+				 "stagedCountRenamed" = $stagedCountRenamed;
+				 "stagedCountAdded" = $stagedCountAdded;
+				 "unstagedMsg" = $unstagedMsg;
+				 "unstagedCountModified" = $unstagedCountModified;
+				 "unstagedCountDeleted" = $unstagedCountDeleted;
+				 "unstagedCountRenamed" = $unstagedCountRenamed;
+				 "untrackedCount" = $untrackedCount;}
+	}
+}
+
+# Writes to the host the branch name, number of commits ahead/behind origin and number of any staged/unstaged files
+function gitStatus {
+    if (gitIsRepository) {
+		$status = gitStatusDetail
 
 		# Tracking remote
 		if ($status["branchTracking"] -eq $true) {
@@ -259,10 +254,40 @@ function prompt {
 		
 		# Sub-Directory
 		Write-Host (gitSubDirectoryName) -nonewline -foregroundcolor darkgray
-		
-		# Title
-		$host.UI.RawUi.WindowTitle = "[" + (gitRepositoryName) + "] (" + ($branchName) + ") " + $ExecutionContext.SessionState.Path.CurrentLocation
+	}
+}
 
+# Writes to the host the repository name and status for every repository in the tree
+function gitStatusTree {
+	Get-ChildItem | 
+	? { $_.PSIsContainer; } | 
+	% { 
+		Push-Location $_.FullName;
+		if (gitIsRepository) {
+			Write-Host "[" -nonewline;
+			Write-Host (gitRepositoryName) -nonewline -foregroundcolor Blue;
+			Write-Host "]" -nonewline;
+			gitStatus;
+			Write-Host "";
+		}
+		Pop-Location;
+	}
+}
+
+# Cleans up the local repo by deleting branches which have been merged
+function gitClean {
+    git branch | foreach {
+        if ($_ -match "^  ((feature|bugfix|hotfix)/(.*))") {
+			git branch --delete $matches[1]
+        }
+    }
+}
+
+# Updates the prompt to show the git status or the regular prompt
+function prompt {
+    if (gitIsRepository) {
+		$host.UI.RawUi.WindowTitle = "[" + (gitRepositoryName) + "] (" + (gitBranchName) + ") "
+		gitStatus
 	} else {
 		$host.UI.RawUi.WindowTitle = $ExecutionContext.SessionState.Path.CurrentLocation
 		Write-Host "PS" $ExecutionContext.SessionState.Path.CurrentLocation -nonewline
