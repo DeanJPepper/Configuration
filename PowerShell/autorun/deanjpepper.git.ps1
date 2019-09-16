@@ -1,11 +1,12 @@
-# Creates alias for git
+# Creates aliases for git
+Set-Alias -name g -value gitAlias
+Set-Alias -name gst -value gitWriteStatusTree
 function gitAlias {
 	git $args 
 }
-Set-Alias -name g -value gitAlias
 
 # Returns whether the current directory a git repository (or within a git repository)
-function gitIsRepository {
+function gitGetIsRepository {
     if ((Test-Path ".git") -eq $TRUE) {
         return $TRUE
     }
@@ -23,7 +24,7 @@ function gitIsRepository {
 }
 
 # Returns the name of git repository
-function gitRepositoryName {
+function gitGetRepositoryName {
     if ((Test-Path ".git") -eq $TRUE) {
         return (Get-Item .).name
     }
@@ -41,7 +42,7 @@ function gitRepositoryName {
 }
 
 # Returns the name of git sub-directory
-function gitSubDirectoryName {
+function gitGetSubDirectoryName {
     if ((Test-Path ".git") -eq $TRUE) {
         return ""
     }
@@ -61,8 +62,8 @@ function gitSubDirectoryName {
 }
 
 # Returns name of the checked out branch
-function gitBranchName {
-    if (gitIsRepository) {
+function gitGetBranchName {
+    if (gitGetIsRepository) {
 		$currentBranch = ""
 		git branch | foreach {
 			if ($_ -match "^\* (.*)") {
@@ -74,8 +75,8 @@ function gitBranchName {
 }
 
 # Returns number of commits ahead/behind origin and number of any staged/unstaged files
-function gitStatusDetail {
-    if (gitIsRepository) {
+function gitGetStatusDetail {
+    if (gitGetIsRepository) {
 		$branch = ""
 		$branchTracking = $false
 		$aheadMsg = ""
@@ -200,10 +201,15 @@ function gitStatusDetail {
 }
 
 # Writes to the host the branch name, number of commits ahead/behind origin and number of any staged/unstaged files
-function gitStatus {
-    if (gitIsRepository) {
-		$status = gitStatusDetail
+function gitWriteStatus {
+    if (gitGetIsRepository) {
+		$status = gitGetStatusDetail
 
+		# Repository name
+		Write-Host "[" -nonewline;
+		Write-Host (gitGetRepositoryName) -nonewline -foregroundcolor Blue;
+		Write-Host "]" -nonewline;
+		
 		# Tracking remote
 		if ($status["branchTracking"] -eq $true) {
 			Write-Host "*" -nonewline
@@ -224,14 +230,15 @@ function gitStatus {
 		}
 		
 		# Status
-		Write-Host "[" -nonewline
 		$aheadMsg = $status["aheadMsg"]
 		$behindMsg = $status["behindMsg"]
 		$stagedMsg = $status["stagedMsg"]
 		$unstagedMsg = $status["unstagedMsg"]
 		if (($aheadMsg -eq "") -and ($behindMsg -eq "") -and ($stagedMsg -eq "") -and ($unstagedMsg -eq "")) {
-			Write-Host "clean" -nonewline -foregroundcolor Yellow
+			#Write-Host "clean" -nonewline -foregroundcolor Yellow
 		} else {
+			Write-Host "[" -nonewline
+			
 			# Ahead
 			if ($aheadMsg -ne "") {
 				Write-Host $aheadMsg -nonewline -foregroundcolor Red
@@ -249,25 +256,22 @@ function gitStatus {
 				Write-Host $unstagedMsg -nonewline -foregroundcolor Magenta
 			}
 			Write-Host " " -nonewline
+			Write-Host "]" -nonewline
 		}
-		Write-Host "]" -nonewline
 		
-		# Sub-Directory
-		Write-Host (gitSubDirectoryName) -nonewline -foregroundcolor darkgray
+		# Sub-directory
+		Write-Host (gitGetSubDirectoryName) -nonewline -foregroundcolor darkgray
 	}
 }
 
 # Writes to the host the repository name and status for every repository in the tree
-function gitStatusTree {
+function gitWriteStatusTree {
 	Get-ChildItem | 
 	? { $_.PSIsContainer; } | 
 	% { 
 		Push-Location $_.FullName;
-		if (gitIsRepository) {
-			Write-Host "[" -nonewline;
-			Write-Host (gitRepositoryName) -nonewline -foregroundcolor Blue;
-			Write-Host "]" -nonewline;
-			gitStatus;
+		if (gitGetIsRepository) {
+			gitWriteStatus;
 			Write-Host "";
 		}
 		Pop-Location;
@@ -285,9 +289,9 @@ function gitClean {
 
 # Updates the prompt to show the git status or the regular prompt
 function prompt {
-    if (gitIsRepository) {
-		$host.UI.RawUi.WindowTitle = "[" + (gitRepositoryName) + "] (" + (gitBranchName) + ") "
-		gitStatus
+    if (gitGetIsRepository) {
+		$host.UI.RawUi.WindowTitle = "[" + (gitGetRepositoryName) + "] (" + (gitGetBranchName) + ") "
+		gitWriteStatus
 	} else {
 		$host.UI.RawUi.WindowTitle = $ExecutionContext.SessionState.Path.CurrentLocation
 		Write-Host "PS" $ExecutionContext.SessionState.Path.CurrentLocation -nonewline
