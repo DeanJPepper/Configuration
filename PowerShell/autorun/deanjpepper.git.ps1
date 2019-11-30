@@ -5,39 +5,35 @@ function gitAlias {
 	git $args 
 }
 
-# Returns whether the current directory a git repository (or within a git repository)
+# Returns whether the current directory is a git repository (or within a git repository)
 function gitGetIsRepository {
     if ((Test-Path ".git") -eq $TRUE) {
         return $TRUE
     }
-    
-    $checkIn = (Get-Item .).parent
+    $checkIn = (Get-Item .).Parent
     while ($checkIn -ne $NULL) {
-        if ((Test-Path ($checkIn.fullname + "/.git")) -eq $TRUE) {
+        if ((Test-Path ($checkIn.FullName + "/.git")) -eq $TRUE) {
             return $TRUE
         } else {
-            $checkIn = $checkIn.parent
+            $checkIn = $checkIn.Parent
         }
     }
-    
     return $FALSE
 }
 
 # Returns the name of git repository
 function gitGetRepositoryName {
     if ((Test-Path ".git") -eq $TRUE) {
-        return (Get-Item .).name
+        return (Get-Item .).Name
     }
-    
-    $checkIn = (Get-Item .).parent
+    $checkIn = (Get-Item .).Parent
     while ($checkIn -ne $NULL) {
-        if ((Test-Path ($checkIn.fullname + "/.git")) -eq $TRUE) {
-            return $checkIn.name
+        if ((Test-Path ($checkIn.FullName + "/.git")) -eq $TRUE) {
+            return $checkIn.Name
         } else {
-            $checkIn = $checkIn.parent
+            $checkIn = $checkIn.Parent
         }
     }
-    
     return ""
 }
 
@@ -46,18 +42,16 @@ function gitGetSubDirectoryName {
     if ((Test-Path ".git") -eq $TRUE) {
         return ""
     }
-    
-	$subdirectory = (Get-Item .).name
-    $checkIn = (Get-Item .).parent
+	$subdirectory = (Get-Item .).Name
+    $checkIn = (Get-Item .).Parent
     while ($checkIn -ne $NULL) {
-        if ((Test-Path ($checkIn.fullname + "/.git")) -eq $TRUE) {
+        if ((Test-Path ($checkIn.FullName + "/.git")) -eq $TRUE) {
             return $subdirectory
         } else {
-			$subdirectory = $checkIn.name + "\" + $subdirectory
-            $checkIn = $checkIn.parent
+			$subdirectory = $checkIn.Name + "\" + $subdirectory
+            $checkIn = $checkIn.Parent
         }
     }
-    
     return ""
 }
 
@@ -72,23 +66,20 @@ function gitGetBranchName {
 		}
 		return $currentBranch
 	}
+    return ""
 }
 
-# Returns number of commits ahead/behind origin and number of any staged/unstaged files
+# Returns branch tracking details, number of commits ahead/behind origin and number of any staged/unstaged files
 function gitGetStatusDetail {
     if (gitGetIsRepository) {
 		$branch = ""
 		$branchTracking = $false
-		$aheadMsg = ""
 		$aheadCount = 0
-		$behindMsg = ""
 		$behindCount = 0
-		$stagedMsg = ""
 		$stagedCountModified = 0
 		$stagedCountDeleted = 0
 		$stagedCountRenamed = 0
 		$stagedCountAdded = 0
-		$unstagedMsg = ""
 		$unstagedCountModified = 0
 		$unstagedCountDeleted = 0
 		$unstagedCountRenamed = 0
@@ -98,20 +89,18 @@ function gitGetStatusDetail {
 	   
 		$output | foreach {
 			if ($_ -match "## (No commits yet on )?(?<branch>[^\[]+)((.*?)\[(ahead (?<ahead>(\d)*))?(, )?(behind (?<behind>(\d)*))?\])?") {	
+				# Branch
 				$branch = $matches["branch"]
+				
+				# Commits
 				$aheadCount = $matches["ahead"]
 				$behindCount = $matches["behind"]
 				
+				# Tracking
 				$posTracking = $branch.IndexOf('...')
 				if ($posTracking -gt -1) {
 					$branchTracking = $true
 					$branch = $branch.SubString(0, $posTracking)
-				}
-				if ($aheadCount -gt 0) {
-					$aheadMsg = " +" + $aheadCount
-				}
-				if ($behindCount -gt 0) {
-					$behindMsg = " -" + $behindCount
 				}
 			}
 			else {
@@ -153,46 +142,14 @@ function gitGetStatusDetail {
 			}
 		}
 		
-		# Staged
-		if ($stagedCountModified -gt 0) {
-			$stagedMsg += " m" + $stagedCountModified
-		}
-		if ($stagedCountDeleted -gt 0) {
-			$stagedMsg += " d" + $stagedCountDeleted
-		}
-		if ($stagedCountRenamed -gt 0) {
-			$stagedMsg += " r" + $stagedCountRenamed
-		}
-		if ($stagedCountAdded -gt 0) {
-			$stagedMsg += " a" + $stagedCountAdded
-		}
-		
-		# Unstaged
-		if ($unstagedCountModified -gt 0) {
-			$unstagedMsg += " m" + $unstagedCountModified
-		}
-		if ($unstagedCountDeleted -gt 0) {
-			$unstagedMsg += " d" + $unstagedCountDeleted
-		}
-		if ($unstagedCountRenamed -gt 0) {
-			$unstagedMsg += " r" + $unstagedCountRenamed
-		}
-		if ($untrackedCount -gt 0) {
-			$unstagedMsg += " ?" + $untrackedCount
-		}
-		
 		return @{"branch" = $branch;
 				 "branchTracking" = $branchTracking;
-				 "aheadMsg" = $aheadMsg;
 				 "aheadCount" = $aheadCount;
-				 "behindMsg" = $behindMsg;
 				 "behindCount" = $behindCount;
-				 "stagedMsg" = $stagedMsg;
 				 "stagedCountModified" = $stagedCountModified;
 				 "stagedCountDeleted" = $stagedCountDeleted;
 				 "stagedCountRenamed" = $stagedCountRenamed;
 				 "stagedCountAdded" = $stagedCountAdded;
-				 "unstagedMsg" = $unstagedMsg;
 				 "unstagedCountModified" = $unstagedCountModified;
 				 "unstagedCountDeleted" = $unstagedCountDeleted;
 				 "unstagedCountRenamed" = $unstagedCountRenamed;
@@ -203,64 +160,107 @@ function gitGetStatusDetail {
 # Writes to the host the branch name, number of commits ahead/behind origin and number of any staged/unstaged files
 function gitWriteStatus {
     if (gitGetIsRepository) {
-		$status = gitGetStatusDetail
-
-		# Repository name
-		Write-Host "[" -nonewline;
-		Write-Host (gitGetRepositoryName) -nonewline -foregroundcolor Blue;
-		Write-Host "]" -nonewline;
-		
-		# Tracking remote
-		if ($status["branchTracking"] -eq $true) {
-			Write-Host "*" -nonewline
-		}
-
-		# Branch name
-		$branchName = $status["branch"];
-		$branchNameShort = $branchName
-		if ($branchName.Length -gt 50) {
-			$branchNameShort = $branchName.SubString(0, 27) + "..."
-		}
-		if ($status["aheadCount"] -gt 0) {
-			Write-Host $branchNameShort -nonewline -foregroundcolor Red
-		} elseif($status["behind"] -gt 0) {
-			Write-Host $branchNameShort -nonewline -foregroundcolor Cyan
-		} else {
-			Write-Host $branchNameShort -nonewline -foregroundcolor Green
-		}
+		$delimiter = "|"
+		$colorDelimiter = "Gray"
+		$colorRepoName = "White"
+		$colorAhead = "Red"
+		$colorBehind = "Cyan"
+		$colorSync = "Green"
+		$colorNotTracking = "Yellow"
+		$colorStaged = "DarkGreen"
+		$colorUnstaged = "Magenta"
+		$colorSubDirectory = "DarkGray"
 		
 		# Status
-		$aheadMsg = $status["aheadMsg"]
-		$behindMsg = $status["behindMsg"]
-		$stagedMsg = $status["stagedMsg"]
-		$unstagedMsg = $status["unstagedMsg"]
-		if (($aheadMsg -eq "") -and ($behindMsg -eq "") -and ($stagedMsg -eq "") -and ($unstagedMsg -eq "")) {
-			#Write-Host "clean" -nonewline -foregroundcolor Yellow
-		} else {
-			Write-Host "[" -nonewline
-			
+		$status = gitGetStatusDetail
+		$branchName = $status["branch"]
+		$branchTracking = $status["branchTracking"]
+		$aheadCount = $status["aheadCount"]
+		$behindCount = $status["behindCount"]
+		$stagedCountModified = $status["stagedCountModified"]
+		$stagedCountDeleted = $status["stagedCountDeleted"]
+		$stagedCountRenamed = $status["stagedCountRenamed"]
+		$stagedCountAdded = $status["stagedCountAdded"]
+		$unstagedCountModified = $status["unstagedCountModified"]
+		$unstagedCountDeleted = $status["unstagedCountDeleted"]
+		$unstagedCountRenamed = $status["unstagedCountRenamed"]
+		$untrackedCount = $status["untrackedCount"]
+		$subDirectoryName = gitGetSubDirectoryName
+		$repositoryName = gitGetRepositoryName
+
+		# Repository name
+		Write-Host "$repositoryName" -NoNewLine -ForegroundColor $colorRepoName
+		
+		# Branch name
+		$branchNameShort = $branchName
+		if ($branchName.Length -gt 30) {
+			$branchNameShort = $branchName.SubString(0, 27) + "..."
+		}
+		Write-Host $delimiter -NoNewLine -ForegroundColor $colorDelimiter
+		if ($aheadCount -gt 0) {
 			# Ahead
-			if ($aheadMsg -ne "") {
-				Write-Host $aheadMsg -nonewline -foregroundcolor Red
-			}			
+			Write-Host $branchNameShort -NoNewLine -ForegroundColor $colorAhead
+		} elseif($behindCount -gt 0) {
 			# Behind
-			if ($behindMsg -ne "") {
-				Write-Host $behindMsg -nonewline -foregroundcolor Cyan
-			}									
-			# Staged
-			if ($stagedMsg -ne "") {
-				Write-Host $stagedMsg -nonewline -foregroundcolor DarkGreen
-			}			
-			# Unstaged
-			if ($unstagedMsg -ne "") {
-				Write-Host $unstagedMsg -nonewline -foregroundcolor Magenta
-			}
-			Write-Host " " -nonewline
-			Write-Host "]" -nonewline
+			Write-Host $branchNameShort -NoNewLine -ForegroundColor $colorBehind
+		} elseif ($branchTracking -eq $true) {
+			# Sync
+			Write-Host $branchNameShort -NoNewLine -ForegroundColor $colorSync
+		} else {
+			# Not tracking
+			Write-Host $branchNameShort -NoNewLine -ForegroundColor $colorNotTracking
+		}
+		
+		# Ahead
+		if ($aheadCount -gt 0) {
+			Write-Host $delimiter -NoNewLine -ForegroundColor $colorDelimiter
+			Write-Host "+$aheadCount" -NoNewLine -ForegroundColor $colorAhead
+		}			
+		# Behind
+		if ($behindCount -gt 0) {
+			Write-Host $delimiter -NoNewLine -ForegroundColor $colorDelimiter
+			Write-Host "-$behindCount" -NoNewLine -ForegroundColor $colorBehind
+		}									
+		# Staged	
+		if ($stagedCountModified -gt 0) {
+			Write-Host $delimiter -NoNewLine -ForegroundColor $colorDelimiter
+			Write-Host "m$stagedCountModified" -NoNewLine -ForegroundColor $colorStaged
+		}
+		if ($stagedCountDeleted -gt 0) {
+			Write-Host $delimiter -NoNewLine -ForegroundColor $colorDelimiter
+			Write-Host "d$stagedCountDeleted" -NoNewLine -ForegroundColor $colorStaged
+		}
+		if ($stagedCountRenamed -gt 0) {
+			Write-Host $delimiter -NoNewLine -ForegroundColor $colorDelimiter
+			Write-Host "r$stagedCountRenamed" -NoNewLine -ForegroundColor $colorStaged
+		}
+		if ($stagedCountAdded -gt 0) {
+			Write-Host $delimiter -NoNewLine -ForegroundColor $colorDelimiter
+			Write-Host "a$stagedCountAdded" -NoNewLine -ForegroundColor $colorStaged
+		}
+		# Unstaged
+		if ($unstagedCountModified -gt 0) {
+			Write-Host $delimiter -NoNewLine -ForegroundColor $colorDelimiter
+			Write-Host "m$unstagedCountModified" -NoNewLine -ForegroundColor $colorUnstaged
+		}
+		if ($unstagedCountDeleted -gt 0) {
+			Write-Host $delimiter -NoNewLine -ForegroundColor $colorDelimiter
+			Write-Host "d$unstagedCountDeleted" -NoNewLine -ForegroundColor $colorUnstaged
+		}
+		if ($unstagedCountRenamed -gt 0) {
+			Write-Host $delimiter -NoNewLine -ForegroundColor $colorDelimiter
+			Write-Host "r$unstagedCountRenamed" -NoNewLine -ForegroundColor $colorUnstaged
+		}
+		if ($untrackedCount -gt 0) {
+			Write-Host $delimiter -NoNewLine -ForegroundColor $colorDelimiter
+			Write-Host "?$untrackedCount" -NoNewLine -ForegroundColor $colorUnstaged
 		}
 		
 		# Sub-directory
-		Write-Host (gitGetSubDirectoryName) -nonewline -foregroundcolor darkgray
+		if ($subDirectoryName -ne "") {
+			Write-Host $delimiter -NoNewLine -ForegroundColor $colorDelimiter
+			Write-Host $subDirectoryName -NoNewLine -ForegroundColor $colorSubDirectory
+		}
 	}
 }
 
@@ -291,10 +291,11 @@ function gitClean {
 function prompt {
     if (gitGetIsRepository) {
 		$host.UI.RawUi.WindowTitle = "[" + (gitGetRepositoryName) + "] (" + (gitGetBranchName) + ") "
+		Write-Host "Git " -NoNewLine
 		gitWriteStatus
 	} else {
 		$host.UI.RawUi.WindowTitle = $ExecutionContext.SessionState.Path.CurrentLocation
-		Write-Host "PS" $ExecutionContext.SessionState.Path.CurrentLocation -nonewline
+		Write-Host "PS" $ExecutionContext.SessionState.Path.CurrentLocation -NoNewLine
 	}
 	return "> "
 }

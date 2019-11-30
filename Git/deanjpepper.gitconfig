@@ -5,8 +5,8 @@
 [alias]
 	# view
 	st = status --short --branch
-	lg = log --oneline --graph --decorate -n 15 --pretty='%C(red)%h%C(reset) %C(green)%an%C(reset) %C(cyan)%cr%C(auto)%d%C(reset) %n%s'
-	lga = log --oneline --graph --decorate --all -n 15 --pretty='%C(red)%h%C(reset) %C(green)%an%C(reset) %C(cyan)%cr%C(auto)%d%C(reset) %n%s'
+	lg = log --oneline --graph --decorate -n 5 --pretty='%C(red)%h%C(reset) %C(green)%an%C(reset) %C(cyan)%cr%C(auto)%d%C(reset) %n%s'
+	lga = "!f() { git lg --all; }; f"
 	br = branch
 	bra = branch --all
 	ssl = stash list
@@ -25,6 +25,7 @@
 	ssp = stash push -m
 	brd = branch -d
 	brdd = branch -D
+	brdr = push -d origin
 	
 	# rebase/merge
 	rb = "!f() { git rebase -i "${1-develop}"; }; f"
