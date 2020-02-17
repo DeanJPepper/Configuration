@@ -6,7 +6,7 @@
 	# view
 	st = status --short --branch
 	lg = log --oneline --graph --decorate -n 5 --pretty='%C(red)%h%C(reset) %C(green)%an%C(reset) %C(cyan)%cr%C(auto)%d%C(reset) %n%s'
-	lga = "!f() { git lg --all; }; f"
+	lga = log --oneline --graph --decorate -n 5 --pretty='%C(red)%h%C(reset) %C(green)%an%C(reset) %C(cyan)%cr%C(auto)%d%C(reset) %n%s' --all
 	br = branch
 	bra = branch --all
 	ssl = stash list
