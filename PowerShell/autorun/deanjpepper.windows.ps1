@@ -3,9 +3,16 @@ function newps
 	start powershell
 }
 
-function ex 
+function ex
 {
-	explorer .
+	if ([String]::IsNullOrWhiteSpace($args[0]))
+	{
+		explorer .
+	}
+	else
+	{
+		explorer $args[0]
+	}
 }
 
 function npp
