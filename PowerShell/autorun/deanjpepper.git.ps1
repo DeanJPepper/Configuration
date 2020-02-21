@@ -1,3 +1,4 @@
+$gitPromptEnabled = $TRUE
 $gitDelilmiter = "|"
 $gitColorDelimiter = "Gray"
 $gitColorRepoName = "White"
@@ -307,7 +308,8 @@ function gitClean {
 
 # Updates the prompt to show the git status or the regular prompt
 function prompt {
-    if (gitGetIsRepository) {
+	$isGitRepo = gitGetIsRepository
+    if ($isGitRepo -eq $TRUE -And $gitPromptEnabled -eq $TRUE) {
 		$host.UI.RawUi.WindowTitle = "[" + (gitGetRepositoryName) + "] (" + (gitGetBranchName) + ") "
 		Write-Host "Git " -NoNewLine
 		gitWriteStatus
