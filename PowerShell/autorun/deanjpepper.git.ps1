@@ -1,7 +1,7 @@
 $gitPromptEnabled = $TRUE
 $gitDelilmiter = "|"
 $gitColorDelimiter = "Gray"
-$gitColorRepoName = "White"
+$gitColorRepoName = "Black"
 $gitColorAhead = "Red"
 $gitColorBehind = "Cyan"
 $gitColorSync = "Green"
@@ -9,6 +9,7 @@ $gitColorNotTracking = "Yellow"
 $gitColorStaged = "DarkGreen"
 $gitColorUnstaged = "Magenta"
 $gitColorSubDirectory = "DarkGray"
+$gitBackgroundColourRepoName = "White"
 
 # Creates aliases for git
 Set-Alias -name g -value gitAlias
@@ -190,7 +191,7 @@ function gitWriteStatus {
 		$repositoryName = gitGetRepositoryName
 
 		# Repository name
-		Write-Host "$repositoryName" -NoNewLine -ForegroundColor $gitColorRepoName
+		Write-Host "$repositoryName" -NoNewLine -ForegroundColor $gitColorRepoName -BackgroundColor $gitBackgroundColourRepoName
 		
 		# Branch name
 		$branchNameShort = $branchName
@@ -286,7 +287,7 @@ function gitPullTree {
 	% { 
 		Push-Location $_.FullName;
 		if (gitGetIsRepository) {
-			Write-Host (gitGetRepositoryName) -ForegroundColor $gitColorRepoName;
+			Write-Host (gitGetRepositoryName) -ForegroundColor $gitColorRepoName -BackgroundColor $gitBackgroundColourRepoName;
 			git checkout develop;
 			git pull;
 			gitWriteStatus;
