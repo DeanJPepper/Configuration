@@ -1,4 +1,5 @@
 $gitPromptEnabled = $TRUE
+$gitRepoNameShort = $FALSE
 $gitDelilmiter = "|"
 $gitColorDelimiter = "Gray"
 $gitColorRepoName = "Black"
@@ -195,7 +196,7 @@ function gitWriteStatus {
 		
 		# Branch name
 		$branchNameShort = $branchName
-		if ($branchName.Length -gt 30) {
+		if ($gitRepoNameShort -eq $TRUE -And $branchName.Length -gt 30) {
 			$branchNameShort = $branchName.SubString(0, 27) + "..."
 		}
 		Write-Host $gitDelilmiter -NoNewLine -ForegroundColor $gitColorDelimiter
