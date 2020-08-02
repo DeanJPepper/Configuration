@@ -1,12 +1,13 @@
-[core]
-	editor = 'C:\\Program Files (x86)\\Notepad++\\notepad++.exe' -multiInst -notabbar -nosession -noPlugin
+[help]
+	autocorrect = 30
 [push]
 	default = current
 [alias]
 	# view
 	st = status --short --branch
-	lg = log --oneline --graph --decorate -n 5 --pretty='%C(red)%h%C(reset) %C(green)%an%C(reset) %C(cyan)%cr%C(auto)%d%C(reset) %n%s'
-	lga = log --oneline --graph --decorate -n 5 --pretty='%C(red)%h%C(reset) %C(green)%an%C(reset) %C(cyan)%cr%C(auto)%d%C(reset) %n%s' --all
+	df = diff
+	lg = log -n 10 --pretty='%C(bold)%C(red)%h %C(green)%<(6,trunc)%cr %C(cyan)%<(8,trunc)%an %C(magenta)%<(60,trunc)%s %C(auto)%w(0,0,23)%+d'
+	lga = log -n 10 --pretty='%C(bold)%C(red)%h %C(green)%<(6,trunc)%cr %C(cyan)%<(8,trunc)%an %C(magenta)%<(60,trunc)%s %C(auto)%w(0,0,23)%+d' --all
 	br = branch
 	bra = branch --all
 	ssl = stash list
@@ -21,27 +22,26 @@
 	# stop work
 	ad = add .
 	rs = reset .
-	cm = commit -m
-	ssp = stash push -m
-	brd = branch -d
-	brdd = branch -D
-	brdr = push -d origin
+	cm = commit --message
+	ssp = stash push --message
+	brd = branch --delete
+	brdf = branch --delete --force
 	
-	# rebase/merge
-	rb = "!f() { git rebase -i "${1-develop}"; }; f"
+	# re-write history
+	rb = "!f() { git rebase --interactive "${1-develop}"; }; f"
 	rbc = rebase --continue
 	rba = rebase --abort
 	mg = "!f() { git merge "${1-develop}"; }; f"
 	mgc = merge --continue
 	mga = merge --abort
 	cp = cherry-pick
-	cpc = cherry-pick --continue
 	cpn = cherry-pick --no-commit
-	
-	# corrections
+	cpc = cherry-pick --continue
+	cap = cherry-pick --abort
 	cma = commit --amend --reset-author
 	cman = commit --amend --reset-author --no-edit
-	cmf = commit --fixup
+	cmf = "!f() { git commit --fixup "${1-head}"; }; f"
+	cms = "!f() { git commit --squash "${1-head}"; }; f"
 	
 	# remote
 	ft = fetch --prune
