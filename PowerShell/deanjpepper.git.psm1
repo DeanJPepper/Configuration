@@ -6,16 +6,15 @@ if (!$isGitInstalled) {
 $gitPromptEnabled = $true
 $gitBranchNameLength = 30
 $gitDelilmiter = "|"
-$gitColorDelimiter = "Gray"
-$gitColorRepoName = "Black"
-$gitColorAhead = "Red"
-$gitColorBehind = "Cyan"
-$gitColorSync = "Green"
-$gitColorNotTracking = "Yellow"
-$gitColorStaged = "DarkGreen"
-$gitColorUnstaged = "Magenta"
-$gitColorSubDirectory = "DarkGray"
-$gitBackgroundColourRepoName = "White"
+$gitColorDelimiter = "DarkGray"
+$gitColorRepoName = "Yellow"
+$gitColorBranchAhead = "Red"
+$gitColorBranchBehind = "Cyan"
+$gitColorBranchSync = "Green"
+$gitColorBranchNotTracking = "White"
+$gitColorFileStaged = "DarkGreen"
+$gitColorFileUnstaged = "Magenta"
+$gitColorSubDirectory = "Gray"
 
 # Create alias for Git
 function g {
@@ -189,7 +188,7 @@ function gitWriteStatus {
 		$repositoryName = gitGetRepositoryName
 
 		# Repository name
-		Write-Host "$repositoryName" -NoNewLine -ForegroundColor $gitColorRepoName -BackgroundColor $gitBackgroundColourRepoName
+		Write-Host "$repositoryName" -NoNewLine -ForegroundColor $gitColorRepoName
 		
 		# Branch name
 		$branchNamePrompt = $branchName
@@ -199,61 +198,61 @@ function gitWriteStatus {
 		Write-Host $gitDelilmiter -NoNewLine -ForegroundColor $gitColorDelimiter
 		if ($aheadCount -gt 0) {
 			# Ahead
-			Write-Host $branchNamePrompt -NoNewLine -ForegroundColor $gitColorAhead
+			Write-Host $branchNamePrompt -NoNewLine -ForegroundColor $gitColorBranchAhead
 		} elseif($behindCount -gt 0) {
 			# Behind
-			Write-Host $branchNamePrompt -NoNewLine -ForegroundColor $gitColorBehind
+			Write-Host $branchNamePrompt -NoNewLine -ForegroundColor $gitColorBranchBehind
 		} elseif ($branchTracking) {
 			# Sync
-			Write-Host $branchNamePrompt -NoNewLine -ForegroundColor $gitColorSync
+			Write-Host $branchNamePrompt -NoNewLine -ForegroundColor $gitColorBranchSync
 		} else {
 			# Not tracking
-			Write-Host $branchNamePrompt -NoNewLine -ForegroundColor $gitColorNotTracking
+			Write-Host $branchNamePrompt -NoNewLine -ForegroundColor $gitColorBranchNotTracking
 		}
 		
 		# Ahead
 		if ($aheadCount -gt 0) {
 			Write-Host $gitDelilmiter -NoNewLine -ForegroundColor $gitColorDelimiter
-			Write-Host "+$aheadCount" -NoNewLine -ForegroundColor $gitColorAhead
+			Write-Host "+$aheadCount" -NoNewLine -ForegroundColor $gitColorBranchAhead
 		}			
 		# Behind
 		if ($behindCount -gt 0) {
 			Write-Host $gitDelilmiter -NoNewLine -ForegroundColor $gitColorDelimiter
-			Write-Host "-$behindCount" -NoNewLine -ForegroundColor $gitColorBehind
+			Write-Host "-$behindCount" -NoNewLine -ForegroundColor $gitColorBranchBehind
 		}									
 		# Staged	
 		if ($stagedCountModified -gt 0) {
 			Write-Host $gitDelilmiter -NoNewLine -ForegroundColor $gitColorDelimiter
-			Write-Host "m$stagedCountModified" -NoNewLine -ForegroundColor $gitColorStaged
+			Write-Host "m$stagedCountModified" -NoNewLine -ForegroundColor $gitColorFileStaged
 		}
 		if ($stagedCountDeleted -gt 0) {
 			Write-Host $gitDelilmiter -NoNewLine -ForegroundColor $gitColorDelimiter
-			Write-Host "d$stagedCountDeleted" -NoNewLine -ForegroundColor $gitColorStaged
+			Write-Host "d$stagedCountDeleted" -NoNewLine -ForegroundColor $gitColorFileStaged
 		}
 		if ($stagedCountRenamed -gt 0) {
 			Write-Host $gitDelilmiter -NoNewLine -ForegroundColor $gitColorDelimiter
-			Write-Host "r$stagedCountRenamed" -NoNewLine -ForegroundColor $gitColorStaged
+			Write-Host "r$stagedCountRenamed" -NoNewLine -ForegroundColor $gitColorFileStaged
 		}
 		if ($stagedCountAdded -gt 0) {
 			Write-Host $gitDelilmiter -NoNewLine -ForegroundColor $gitColorDelimiter
-			Write-Host "a$stagedCountAdded" -NoNewLine -ForegroundColor $gitColorStaged
+			Write-Host "a$stagedCountAdded" -NoNewLine -ForegroundColor $gitColorFileStaged
 		}
 		# Unstaged
 		if ($unstagedCountModified -gt 0) {
 			Write-Host $gitDelilmiter -NoNewLine -ForegroundColor $gitColorDelimiter
-			Write-Host "m$unstagedCountModified" -NoNewLine -ForegroundColor $gitColorUnstaged
+			Write-Host "m$unstagedCountModified" -NoNewLine -ForegroundColor $gitColorFileUnstaged
 		}
 		if ($unstagedCountDeleted -gt 0) {
 			Write-Host $gitDelilmiter -NoNewLine -ForegroundColor $gitColorDelimiter
-			Write-Host "d$unstagedCountDeleted" -NoNewLine -ForegroundColor $gitColorUnstaged
+			Write-Host "d$unstagedCountDeleted" -NoNewLine -ForegroundColor $gitColorFileUnstaged
 		}
 		if ($unstagedCountRenamed -gt 0) {
 			Write-Host $gitDelilmiter -NoNewLine -ForegroundColor $gitColorDelimiter
-			Write-Host "r$unstagedCountRenamed" -NoNewLine -ForegroundColor $gitColorUnstaged
+			Write-Host "r$unstagedCountRenamed" -NoNewLine -ForegroundColor $gitColorFileUnstaged
 		}
 		if ($untrackedCount -gt 0) {
 			Write-Host $gitDelilmiter -NoNewLine -ForegroundColor $gitColorDelimiter
-			Write-Host "?$untrackedCount" -NoNewLine -ForegroundColor $gitColorUnstaged
+			Write-Host "?$untrackedCount" -NoNewLine -ForegroundColor $gitColorFileUnstaged
 		}
 		
 		# Sub-directory
@@ -286,7 +285,7 @@ function gitPullTree {
 	% { 
 		Push-Location $_.FullName;
 		if (gitGetIsRepository) {
-			Write-Host (gitGetRepositoryName) -ForegroundColor $gitColorRepoName -BackgroundColor $gitBackgroundColourRepoName;
+			Write-Host (gitGetRepositoryName) -ForegroundColor $gitColorRepoName;
 			git checkout develop;
 			git pull;
 			gitWriteStatus;
@@ -306,7 +305,7 @@ function gitClean {
 	}
 }
 
-# Return whether the Git primpt should be used
+# Return whether the Git prompt should be used
 function gitPromptRelevant {
 	$isGitRepo = gitGetIsRepository
 	if ($isGitRepo -and $gitPromptEnabled) {
