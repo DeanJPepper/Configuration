@@ -3,7 +3,6 @@ if (!$isGitInstalled) {
 	return
 }
 
-$gitPromptEnabled = $true
 $gitBranchNameLength = 30
 $gitDelilmiter = "|"
 $gitColorDelimiter = "DarkGray"
@@ -17,13 +16,14 @@ $gitColorFileUnstaged = "Magenta"
 $gitColorSubDirectory = "Gray"
 
 # Create alias for Git
-function g {
+Set-Alias -Name g -Value Invoke-Git
+function Invoke-Git {
 	git $args 
 }
 
 # Return whether the current directory is a git repository (or within a git repository)
-function gitGetIsRepository {
-	$repoName = gitGetRepositoryName
+function Get-IsGitRepository {
+	$repoName = Get-GitRepositoryName
 	if ($repoName) {
 		return $true
 	} else {
@@ -32,7 +32,7 @@ function gitGetIsRepository {
 }
 
 # Return the name of git repository
-function gitGetRepositoryName {
+function Get-GitRepositoryName {
 	if (Test-Path ".git") {
 		return (Get-Item .).Name
 	}
@@ -48,7 +48,7 @@ function gitGetRepositoryName {
 }
 
 # Return the name of git sub-directory
-function gitGetSubDirectoryName {
+function Get-GitSubDirectoryName {
 	if (Test-Path ".git") {
 		return ""
 	}
@@ -66,8 +66,8 @@ function gitGetSubDirectoryName {
 }
 
 # Return name of the checked out branch
-function gitGetBranchName {
-	if (gitGetIsRepository) {
+function Get-GitBranchName {
+	if (Get-IsGitRepository) {
 		$currentBranch = ""
 		git branch | foreach {
 			if ($_ -match "^\* (.*)") {
@@ -79,9 +79,9 @@ function gitGetBranchName {
 	return ""
 }
 
-# Return branch name, tracking details, number of commits ahead/behind remote and number of any staged/unstaged files
-function gitGetStatusDetail {
-	if (gitGetIsRepository) {
+# Return repository name, branch name, number of commits ahead/behind remote, number of any staged/unstaged/untracked files and any sub-directory
+function Get-GitSummary {
+	if (Get-IsGitRepository) {
 		$branch = ""
 		$branchTracking = $false
 		$aheadCount = 0
@@ -152,26 +152,28 @@ function gitGetStatusDetail {
 			}
 		}
 		
-		return @{"branch" = $branch;
-				 "branchTracking" = $branchTracking;
-				 "aheadCount" = $aheadCount;
-				 "behindCount" = $behindCount;
-				 "stagedCountModified" = $stagedCountModified;
-				 "stagedCountDeleted" = $stagedCountDeleted;
-				 "stagedCountRenamed" = $stagedCountRenamed;
-				 "stagedCountAdded" = $stagedCountAdded;
-				 "unstagedCountModified" = $unstagedCountModified;
-				 "unstagedCountDeleted" = $unstagedCountDeleted;
-				 "unstagedCountRenamed" = $unstagedCountRenamed;
-				 "untrackedCount" = $untrackedCount;}
+		return @{
+			"branch" = $branch
+			"branchTracking" = $branchTracking
+			"aheadCount" = $aheadCount
+			"behindCount" = $behindCount
+			"stagedCountModified" = $stagedCountModified
+			"stagedCountDeleted" = $stagedCountDeleted
+			"stagedCountRenamed" = $stagedCountRenamed
+			"stagedCountAdded" = $stagedCountAdded
+			"unstagedCountModified" = $unstagedCountModified
+			"unstagedCountDeleted" = $unstagedCountDeleted
+			"unstagedCountRenamed" = $unstagedCountRenamed
+			"untrackedCount" = $untrackedCount
+		}
 	}
 }
 
-# Write to the host the branch name, tracking details, number of commits ahead/behind remote and number of any staged/unstaged files
-function gitWriteStatus {
-	if (gitGetIsRepository) {		
+# Write to the host the Git summary
+function Show-GitSummary {
+	if (Get-IsGitRepository) {		
 		# Status
-		$status = gitGetStatusDetail
+		$status = Get-GitSummary
 		$branchName = $status["branch"]
 		$branchTracking = $status["branchTracking"]
 		$aheadCount = $status["aheadCount"]
@@ -184,11 +186,11 @@ function gitWriteStatus {
 		$unstagedCountDeleted = $status["unstagedCountDeleted"]
 		$unstagedCountRenamed = $status["unstagedCountRenamed"]
 		$untrackedCount = $status["untrackedCount"]
-		$subDirectoryName = gitGetSubDirectoryName
-		$repositoryName = gitGetRepositoryName
+		$subDirectoryName = Get-GitSubDirectoryName
+		$repositoryName = Get-GitRepositoryName
 
 		# Repository name
-		Write-Host "$repositoryName" -NoNewLine -ForegroundColor $gitColorRepoName
+		Write-Host $repositoryName -NoNewLine -ForegroundColor $gitColorRepoName
 		
 		# Branch name
 		$branchNamePrompt = $branchName
@@ -263,61 +265,49 @@ function gitWriteStatus {
 	}
 }
 
-# Write to the host the repository name and status for every repository in the tree
-Set-Alias -name gst -value gitWriteStatusTree
-function gitWriteStatusTree {
+# Write to the host the repository name and summary for every repository in the tree
+function Show-GitSummaryTree {
+	if (Get-IsGitRepository) {
+		return
+	}
 	Get-ChildItem | 
-	? { $_.PSIsContainer; } | 
+	? { $_.PSIsContainer } | 
 	% { 
-		Push-Location $_.FullName;
-		if (gitGetIsRepository) {
-			gitWriteStatus;
-			Write-Host "";
+		Push-Location $_.FullName
+		if (Get-IsGitRepository) {
+			$parentDirectory = Split-Path -Path $ExecutionContext.SessionState.Path.CurrentLocation
+			Write-Host "$parentDirectory\" -NoNewLine
+			Show-GitSummary
+			Write-Host ""
 		}
-		Pop-Location;
+		Show-GitSummaryTree
+		Pop-Location
 	}
 }
 
 # Pull the develop (or current) branch for every repository in the tree
-function gitPullTree {
+function Update-GitTree {
 	Get-ChildItem | 
-	? { $_.PSIsContainer; } | 
+	? { $_.PSIsContainer } | 
 	% { 
-		Push-Location $_.FullName;
-		if (gitGetIsRepository) {
-			Write-Host (gitGetRepositoryName) -ForegroundColor $gitColorRepoName;
-			git checkout develop;
-			git pull;
-			gitWriteStatus;
-			Write-Host "";
-			Write-Host "";
+		Push-Location $_.FullName
+		if (Get-IsGitRepository) {
+			Write-Host (Get-GitRepositoryName) -ForegroundColor $gitColorRepoName
+			git checkout develop
+			git pull
+			Show-GitSummary
+			Write-Host ""
+			Write-Host ""
 		}
-		Pop-Location;
+		Pop-Location
 	}
 }
 
 # Clean up the repository by deleting branches which have been merged
-function gitClean {
+function Clear-GitMergedBranch {
 	git branch | foreach {
 		if ($_ -match "^  ((feature|bugfix|hotfix)/(.*))") {
 			git branch --delete $matches[1]
 		}
 	}
-}
-
-# Return whether the Git prompt should be used
-function gitPromptRelevant {
-	$isGitRepo = gitGetIsRepository
-	if ($isGitRepo -and $gitPromptEnabled) {
-		return $true
-	} else {
-		return $false
-	}
-}
-
-# Update the prompt to show the git status
-function gitPrompt {
-	$host.UI.RawUi.WindowTitle = "[" + (gitGetRepositoryName) + "] (" + (gitGetBranchName) + ")"
-	gitWriteStatus
-	return "> "
 }
