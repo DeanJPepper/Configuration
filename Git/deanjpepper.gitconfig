@@ -6,8 +6,8 @@
 	# view
 	st = status --short --branch
 	df = diff
-	lg = log -n 10 --pretty='%C(bold)%C(red)%h %C(green)%<(6,trunc)%cr %C(cyan)%<(8,trunc)%an %C(magenta)%<(60,trunc)%s %C(auto)%w(0,0,23)%+d'
-	lga = log -n 10 --pretty='%C(bold)%C(red)%h %C(green)%<(6,trunc)%cr %C(cyan)%<(8,trunc)%an %C(magenta)%<(60,trunc)%s %C(auto)%w(0,0,23)%+d' --all
+	lg = log -n 10 --pretty='%C(bold)%C(red)%h %C(green)%<(6,trunc)%cr %C(cyan)%<(8,trunc)%an %C(white)%<(60,trunc)%s %C(auto)%w(0,0,23)%+d'
+	lga = log -n 10 --pretty='%C(bold)%C(red)%h %C(green)%<(6,trunc)%cr %C(cyan)%<(8,trunc)%an %C(white)%<(60,trunc)%s %C(auto)%w(0,0,23)%+d' --all
 	br = branch
 	bra = branch --all
 	ssl = stash list
