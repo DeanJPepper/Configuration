@@ -9,14 +9,14 @@ $filterModule = "deanjpepper.*.psm1"
 
 if ($option -Eq "remove") {
     Get-ChildItem $directoryDeploy -Filter $filterModule -Recurse -Depth 2 | ForEach-Object {
-        ModuleRemove $_.Name $directoryDeployModules
+        Unpublish-Module $_.Name $directoryDeployModules
     }
-    PowerShellProfileModuleRemove "deanjpepper.prompt"
+    Unregister-Module "deanjpepper.prompt"
 } else {
     Get-ChildItem $PSScriptRoot -Filter $filterModule | ForEach-Object {
-        ModuleDeploy $_.Name $PSScriptRoot $directoryDeployModules
+        Publish-Module $_.Name $PSScriptRoot $directoryDeployModules
     }
-    PowerShellProfileModuleAdd "deanjpepper.prompt"
+    Register-Module "deanjpepper.prompt"
 }
 
 Remove-Module -Name "deploy"

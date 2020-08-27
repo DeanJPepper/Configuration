@@ -1,105 +1,80 @@
-# Check whether the program/command is installed
-function IsInstalled($command) {
-	$isInstalled = Get-Command $command  -ErrorAction SilentlyContinue
-	if ($isInstalled) {
-		return $true
-	} else {
-		return $false
-	}
-}
-
-# Set Git config name/value
-function GitConfigSet($name, $value) {
+function Set-GitConfig($name, $value) {
 	if((git config $name) -ne $value) {
 		Write-Host "Setting Git config '$name' to '$value'..."
 		git config --global $name $value
 	}
 }
 
-# Remove Git config name
-function GitConfigRemove($name) {
+function Clear-GitConfig($name) {
 	if(git config $name) {
-		Write-Host "Removing Git config '$name'..."
+		Write-Host "Clearing Git config '$name'..."
 		git config --global --unset $name
 	}
 }
 
-# Create empty file if it doesn't exist
-function FileCreate($file){
-	if (!(Test-Path $file)) {
-		Write-Host "Creating file... [$file]"
-		New-Item $file -ItemType "File" | Out-Null
+function Set-Directory($directory){
+	if (!(Test-Path $directory)) {
+		Write-Host "Creating directory [$directory]..."
+		New-Item $directory -ItemType Directory | Out-Null
 	}
 }
 
-# Deploy specified file to host
-function FileDeploy($file, $directorySource, $directoryDeploy) {
+function Remove-Directory($directory){
+	if (Test-Path $directory) {
+		Write-Host "Removing directory [$directory]..."
+		Remove-Item $directory
+	}
+}
+
+function Publish-File($file, $directorySource, $directoryDeploy) {
 	$pathSource = "$directorySource\$file"
 	$pathDestination = "$directoryDeploy\$file"
-	$directoryDestination = [System.IO.Path]::GetDirectoryName($pathDestination)
-	DirectoryCreate $directoryDestination
-	Write-Host "Deploying file [$pathDestination]..."
+	Write-Host "Publishing file [$pathDestination]..."
 	Copy-Item $pathSource $pathDestination -Force
 }
 
-# Remove specified file from host
-function FileRemove($file, $directoryDeploy) {
+function Unpublish-File($file, $directoryDeploy) {
 	$path = "$directoryDeploy\$file"
 	if (Test-Path $path) {
-		Write-Host "Removing file [$path]..."
+		Write-Host "Unpublishing file [$path]..."
 		Remove-Item $path -Force
 	}
 }
 
-# Create directory if it doesn't exist
-function DirectoryCreate($directory) {
-	if (!(Test-Path $directory)) {
-		Write-Host "Creating directory [$directory]..."
-		mkdir $directory | Out-Null
-	}
-}
-
-# Remove directory if it exists
-function DirectoryRemove($directory) {
-	if (Test-Path $directory) {
-		Write-Host "Removing directory [$directory]..."
-		rmdir $directoryModule
-	}
-}
-
-# Deploy specified module to host
-function ModuleDeploy($file, $directorySource, $directoryDeploy) {
+function Publish-Module($file, $directorySource, $directoryDeploy) {
 	$module = [System.IO.Path]::GetFileNameWithoutExtension($file)
 	$directoryModule = "$directoryDeploy\$module"
-    FileDeploy $file $directorySource $directoryModule
-}
-
-# Remove specified module from host
-function ModuleRemove($file, $directoryDeploy) {
-	$module = [System.IO.Path]::GetFileNameWithoutExtension($file)
-	$directoryModule = "$directoryDeploy\$module"
-	FileRemove $file $directoryModule
-	DirectoryRemove $directoryModule
-}
-
-# Path of PowerShell profile
-$pathPowerShell = "$HOME\Documents\WindowsPowerShell"
-$pathProfile = "$pathPowerShell\Microsoft.PowerShell_profile.ps1"
-
-# Add specified module to PowerShell profile
-function PowerShellProfileModuleAdd($module) {
-	FileCreate $pathProfile
-	if (!(Select-String -Path $pathProfile -Pattern $module)) {
-		Write-Host "Adding module [$module] to PowerShell profile... [$pathProfile]"
-		Add-Content $pathProfile " `r`nImport-Module $module"
+	Set-Directory $directoryModule
+	Publish-File $file $directorySource $directoryModule
+	if (Get-Module $module) {
+		Write-Host "Importing module [$module]..."
+		Import-Module $module -Force
 	}
 }
 
-# Remove specified file from PowerShell profile
-function PowerShellProfileModuleRemove($module) {
-	if (Select-String -Path $pathProfile -Pattern $module) {
-		Write-Host "Removing module [$module] from PowerShell profile... [$pathProfile]"
-		$content = (Get-Content $pathProfile -Raw) -Replace "Import-Module $module", ''
-		echo $content > $pathProfile
+function Unpublish-Module($file, $directoryDeploy) {
+	$module = [System.IO.Path]::GetFileNameWithoutExtension($file)
+	$directoryModule = "$directoryDeploy\$module"
+	Unpublish-File $file $directoryModule
+	Remove-Directory $directoryModule
+}
+
+function Register-Module($module) {
+	if (!(Test-Path $PROFILE)) {
+		Write-Host "Creating file [$PROFILE]..."
+		New-Item $PROFILE -ItemType "File" | Out-Null
+	}
+
+	if (!(Select-String -Path $PROFILE -Pattern $module)) {
+		Write-Host "Adding module [$module] to PowerShell profile [$PROFILE]..."
+		Add-Content $PROFILE " `r`nImport-Module $module"
+	}
+}
+
+function Unregister-Module($module) {
+	if (Select-String -Path $PROFILE -Pattern $module) {
+		Write-Host "Removing module [$module] from PowerShell profile [$PROFILE]..."
+		$content = (Get-Content $PROFILE -Raw) -Replace "Import-Module $module", ''
+		Write-Output $content > $PROFILE
 	}
 }
