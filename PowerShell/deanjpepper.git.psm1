@@ -37,7 +37,7 @@ function Get-GitRepositoryName {
 		return (Get-Item .).Name
 	}
 	$checkIn = (Get-Item .).Parent
-	while ($checkIn -ne $NULL) {
+	while ($checkIn) {
 		if (Test-Path ($checkIn.FullName + "/.git")) {
 			return $checkIn.Name
 		} else {
@@ -54,7 +54,7 @@ function Get-GitSubDirectoryName {
 	}
 	$subdirectory = (Get-Item .).Name
 	$checkIn = (Get-Item .).Parent
-	while ($checkIn -ne $NULL) {
+	while ($checkIn) {
 		if (Test-Path ($checkIn.FullName + "/.git")) {
 			return $subdirectory
 		} else {
@@ -69,7 +69,7 @@ function Get-GitSubDirectoryName {
 function Get-GitBranchName {
 	if (Get-IsGitRepository) {
 		$currentBranch = ""
-		git branch | foreach {
+		git branch | ForEach-Object {
 			if ($_ -match "^\* (.*)") {
 				$currentBranch += $matches[1]
 			}
@@ -97,7 +97,7 @@ function Get-GitSummary {
 		
 		$output = git status --short --branch
 	   
-		$output | foreach {
+		$output | ForEach-Object {
 			if ($_ -match "## (No commits yet on )?(?<branch>[^\[]+)((.*?)\[(ahead (?<ahead>(\d)*))?(, )?(behind (?<behind>(\d)*))?\])?") {	
 				# Branch
 				$branch = $matches["branch"]
@@ -271,8 +271,8 @@ function Show-GitSummaryTree {
 		return
 	}
 	Get-ChildItem | 
-	? { $_.PSIsContainer } | 
-	% { 
+	Where-Object { $_.PSIsContainer } | 
+	ForEach-Object { 
 		Push-Location $_.FullName
 		if (Get-IsGitRepository) {
 			$parentDirectory = Split-Path -Path $ExecutionContext.SessionState.Path.CurrentLocation
@@ -288,8 +288,8 @@ function Show-GitSummaryTree {
 # Pull the develop (or current) branch for every repository in the tree
 function Update-GitTree {
 	Get-ChildItem | 
-	? { $_.PSIsContainer } | 
-	% { 
+	Where-Object { $_.PSIsContainer } | 
+	ForEach-Object { 
 		Push-Location $_.FullName
 		if (Get-IsGitRepository) {
 			Write-Host (Get-GitRepositoryName) -ForegroundColor $gitColorRepoName
@@ -305,7 +305,7 @@ function Update-GitTree {
 
 # Clean up the repository by deleting branches which have been merged
 function Clear-GitMergedBranch {
-	git branch | foreach {
+	git branch | ForEach-Object {
 		if ($_ -match "^  ((feature|bugfix|hotfix)/(.*))") {
 			git branch --delete $matches[1]
 		}
