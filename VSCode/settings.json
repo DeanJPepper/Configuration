@@ -1,0 +1,17 @@
+{
+  "editor.fontSize": 12,
+  "editor.formatOnPaste": true,
+  "editor.minimap.showSlider": "always",
+  "editor.minimap.size": "fill",
+  "editor.minimap.maxColumn": 100,
+  "files.autoSave": "onWindowChange",
+  "terminal.integrated.cursorBlinking": true,
+  "terminal.integrated.cursorStyle": "block",
+  "terminal.integrated.rightClickBehavior": "copyPaste",
+  "terminal.integrated.fontSize": 12,
+  "terminal.integrated.rendererType": "canvas",
+  "workbench.colorCustomizations": {
+    "terminalCursor.foreground": "#00bfff"
+  },
+  "workbench.colorTheme": "Visual Studio 2019 Dark"
+}
