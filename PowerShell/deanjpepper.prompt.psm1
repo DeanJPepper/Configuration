@@ -7,6 +7,12 @@ function prompt {
 	$isGitInstalled = Get-Command -ErrorAction SilentlyContinue git
 	if ($isGitInstalled -and $(Get-IsGitRepository)) {
 		Show-GitSummary
+	} elseif ($env:KubeConfig) {
+		if (Test-Path $env:KubeConfig) {
+			Write-Host $([System.IO.Path]::GetFileName($env:KubeConfig)) -NoNewLine -ForegroundColor Yellow
+		} else {
+			Write-Host $env:KubeConfig -NoNewLine -ForegroundColor Red
+		}
 	} else {
 		Write-Host $currentLoction -NoNewLine -ForegroundColor Yellow
 	}
