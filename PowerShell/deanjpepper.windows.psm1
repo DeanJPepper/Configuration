@@ -1,6 +1,6 @@
 # Open new instance of PowerShell
 function newps {
-	start powershell
+	Start-Process powershell
 }
 
 # Open Windows Explorer (at current/specified directory)
@@ -17,7 +17,7 @@ function ex {
 # Create a directory and change into it
 function mkdircd {
 	mkdir $args[0]
-	cd $args[0]
+	Set-Location $args[0]
 }
 
 # Base 64 encode string
