@@ -24,8 +24,20 @@ function promptKubernetes {
 		if (Test-Path $configFile) {
 			Write-Host $([System.IO.Path]::GetFileName($configFile)) -ForegroundColor Yellow
 		} else {
-			Write-Host $configFile -NoNewLine -ForegroundColor Red
+			Write-Host $configFile -ForegroundColor Red
 		}
+	}
+}
+
+function promptEnd {
+	$currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
+	$isAdministrator = $currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+
+	if ($isAdministrator) {
+		return "#> "
+	}
+	else {
+		return "> "
 	}
 }
 
@@ -34,5 +46,5 @@ function prompt {
 	promptDirectory
 	promptGit
 	promptKubernetes		
-	return "> "
+	return promptEnd
 }
