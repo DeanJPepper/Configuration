@@ -1,10 +1,30 @@
 [
-    { 
-      "key": "ctrl+shift+up",
-      "command": "workbench.action.terminal.focusPrevious"
-    },
-    {
-        "key": "ctrl+shift+down",
-        "command": "workbench.action.terminal.focusNext"
-    }
+  {
+    "key": "ctrl+shift+up",
+    "command": "workbench.action.navigateUp"
+  },
+  {
+    "key": "ctrl+shift+down",
+    "command": "workbench.action.navigateDown"
+  },
+  {
+    "key": "ctrl+shift+right",
+    "command": "workbench.action.navigateRight",
+    "when": "!terminalFocus"
+  },
+  {
+    "key": "ctrl+shift+left",
+    "command": "workbench.action.navigateLeft",
+    "when": "!terminalFocus"
+  },
+  {
+    "key": "ctrl+shift+right",
+    "command": "workbench.action.terminal.focusNextPane",
+    "when": "terminalFocus"
+  },
+  {
+    "key": "ctrl+shift+left",
+    "command": "workbench.action.terminal.focusPreviousPane",
+    "when": "terminalFocus"
+  }
 ]
