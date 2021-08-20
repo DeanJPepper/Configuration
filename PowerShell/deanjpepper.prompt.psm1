@@ -41,8 +41,8 @@ function promptEnd {
 	}
 }
 
-function prompt {	
-	Write-Host ("-" * $host.UI.RawUI.BufferSize.Width)
+function prompt {
+	Write-Host "---"
 	promptDirectory
 	promptGit
 	promptKubernetes		

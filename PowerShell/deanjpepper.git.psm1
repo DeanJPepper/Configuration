@@ -285,15 +285,16 @@ function Show-GitSummaryTree {
 	}
 }
 
-# Pull the develop (or current) branch for every repository in the tree
+# Pull the specified, develop or current branch for every repository in the tree
 function Update-GitTree {
+	$targetBranch = if($args.Length -Eq 0) { "develop" } else { $args[0] }
 	Get-ChildItem | 
 	Where-Object { $_.PSIsContainer } | 
 	ForEach-Object { 
 		Push-Location $_.FullName
 		if (Get-IsGitRepository) {
 			Write-Host (Get-GitRepositoryName) -ForegroundColor $gitColorRepoName
-			git checkout develop
+			git checkout $targetBranch
 			git pull
 			Show-GitSummary
 			Write-Host ""
@@ -301,6 +302,7 @@ function Update-GitTree {
 		}
 		Pop-Location
 	}
+	Show-GitSummaryTree
 }
 
 # Clean up the repository by deleting branches which have been merged
