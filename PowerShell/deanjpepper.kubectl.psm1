@@ -21,3 +21,16 @@ function kgp {
 function kdp {
     k describe pod $args
 }
+
+function kc {
+    if ($args.Length -eq 0) {
+        k config get-contexts
+    }
+    elseif ($args[0].StartsWith("~")) {
+        $contexts = k config get-contexts --output name
+        k config use-context $contexts[$args[0].Substring(1)]
+    }
+    else {
+        k config use-context $args[0]
+    }
+}

@@ -17,14 +17,13 @@ function promptGit {
 }
 
 function promptKubernetes {
-	$configFile = $env:KubeConfig
+	$isKubeCtlInstalled = Get-Command -ErrorAction SilentlyContinue kubectl
 
-	if ($configFile) {
-		Write-Host "k8s:" -NoNewline -ForegroundColor DarkGray
-		if (Test-Path $configFile) {
-			Write-Host $([System.IO.Path]::GetFileName($configFile)) -ForegroundColor Yellow
-		} else {
-			Write-Host $configFile -ForegroundColor Red
+	if ($isKubeCtlInstalled) {
+		$context = kubectl config current-context
+		if ($context.Length -gt 0) {
+			Write-Host "k8s:" -NoNewline -ForegroundColor DarkGray
+			Write-Host $context -ForegroundColor Yellow
 		}
 	}
 }
