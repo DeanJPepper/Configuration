@@ -266,7 +266,7 @@ function Show-GitSummary {
 }
 
 # Write to the host the repository name and summary for every repository in the tree
-function Show-GitSummaryTree {
+function Show-GitTree {
 	if (Get-IsGitRepository) {
 		return
 	}
@@ -280,21 +280,24 @@ function Show-GitSummaryTree {
 			Show-GitSummary
 			Write-Host ""
 		}
-		Show-GitSummaryTree
+		Show-GitTree
 		Pop-Location
 	}
 }
 
-# Pull the specified, develop or current branch for every repository in the tree
+# Pull the specified or current branch for every repository in the tree
 function Update-GitTree {
-	$targetBranch = if($args.Length -Eq 0) { "develop" } else { $args[0] }
+	$targetBranch = if ($args.Length -ge 1) { $args[0] } else { $null }
 	Get-ChildItem | 
 	Where-Object { $_.PSIsContainer } | 
 	ForEach-Object { 
 		Push-Location $_.FullName
 		if (Get-IsGitRepository) {
 			Write-Host (Get-GitRepositoryName) -ForegroundColor $gitColorRepoName
-			git checkout $targetBranch
+			if ($null -ne $targetBranch -and $targetBranch -ne (Get-GitBranchName)) {
+				git fetch
+				git checkout $targetBranch
+			}
 			git pull
 			Show-GitSummary
 			Write-Host ""
@@ -302,7 +305,7 @@ function Update-GitTree {
 		}
 		Pop-Location
 	}
-	Show-GitSummaryTree
+	Show-GitTree
 }
 
 # Clean up the repository by deleting branches which have been merged
