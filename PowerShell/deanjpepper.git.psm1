@@ -3,7 +3,7 @@ if (!$isGitInstalled) {
 	return
 }
 
-$gitBranchNameLength = 30
+$gitBranchNameLength = 0
 $gitDelilmiter = "|"
 $gitColorDelimiter = "DarkGray"
 $gitColorRepoName = "Yellow"
@@ -26,7 +26,8 @@ function Get-IsGitRepository {
 	$repoName = Get-GitRepositoryName
 	if ($repoName) {
 		return $true
-	} else {
+	}
+	else {
 		return $false
 	}
 }
@@ -40,7 +41,8 @@ function Get-GitRepositoryName {
 	while ($checkIn) {
 		if (Test-Path ($checkIn.FullName + "/.git")) {
 			return $checkIn.Name
-		} else {
+		}
+		else {
 			$checkIn = $checkIn.Parent
 		}
 	}
@@ -57,7 +59,8 @@ function Get-GitSubDirectoryName {
 	while ($checkIn) {
 		if (Test-Path ($checkIn.FullName + "/.git")) {
 			return $subdirectory
-		} else {
+		}
+		else {
 			$subdirectory = $checkIn.Name + "\" + $subdirectory
 			$checkIn = $checkIn.Parent
 		}
@@ -153,18 +156,18 @@ function Get-GitSummary {
 		}
 		
 		return @{
-			"branch" = $branch
-			"branchTracking" = $branchTracking
-			"aheadCount" = $aheadCount
-			"behindCount" = $behindCount
-			"stagedCountModified" = $stagedCountModified
-			"stagedCountDeleted" = $stagedCountDeleted
-			"stagedCountRenamed" = $stagedCountRenamed
-			"stagedCountAdded" = $stagedCountAdded
+			"branch"                = $branch
+			"branchTracking"        = $branchTracking
+			"aheadCount"            = $aheadCount
+			"behindCount"           = $behindCount
+			"stagedCountModified"   = $stagedCountModified
+			"stagedCountDeleted"    = $stagedCountDeleted
+			"stagedCountRenamed"    = $stagedCountRenamed
+			"stagedCountAdded"      = $stagedCountAdded
 			"unstagedCountModified" = $unstagedCountModified
-			"unstagedCountDeleted" = $unstagedCountDeleted
-			"unstagedCountRenamed" = $unstagedCountRenamed
-			"untrackedCount" = $untrackedCount
+			"unstagedCountDeleted"  = $unstagedCountDeleted
+			"unstagedCountRenamed"  = $unstagedCountRenamed
+			"untrackedCount"        = $untrackedCount
 		}
 	}
 }
@@ -194,20 +197,23 @@ function Show-GitSummary {
 		
 		# Branch name
 		$branchNamePrompt = $branchName
-		if ($branchName.Length -gt $gitBranchNameLength) {
-			$branchNamePrompt = $branchName.SubString(0, [System.Math]::Max(0,$gitBranchNameLength-3)) + "..."
+		if (($gitBranchNameLength -gt 0) -And ($branchName.Length -gt $gitBranchNameLength)) {
+			$branchNamePrompt = $branchName.SubString(0, [System.Math]::Max(0, $gitBranchNameLength - 3)) + "..."
 		}
 		Write-Host $gitDelilmiter -NoNewLine -ForegroundColor $gitColorDelimiter
 		if ($aheadCount -gt 0) {
 			# Ahead
 			Write-Host $branchNamePrompt -NoNewLine -ForegroundColor $gitColorBranchAhead
-		} elseif($behindCount -gt 0) {
+		}
+		elseif ($behindCount -gt 0) {
 			# Behind
 			Write-Host $branchNamePrompt -NoNewLine -ForegroundColor $gitColorBranchBehind
-		} elseif ($branchTracking) {
+		}
+		elseif ($branchTracking) {
 			# Sync
 			Write-Host $branchNamePrompt -NoNewLine -ForegroundColor $gitColorBranchSync
-		} else {
+		}
+		else {
 			# Not tracking
 			Write-Host $branchNamePrompt -NoNewLine -ForegroundColor $gitColorBranchNotTracking
 		}
