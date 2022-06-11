@@ -12,7 +12,7 @@ function Clear-GitConfig($name) {
 	}
 }
 
-function Set-Directory($directory){
+function New-Directory($directory){
 	if (!(Test-Path $directory)) {
 		Write-Host "Creating directory [$directory]..."
 		New-Item $directory -ItemType Directory | Out-Null
@@ -26,15 +26,12 @@ function Remove-Directory($directory){
 	}
 }
 
-function Publish-File($file, $directorySource, $directoryDeploy) {
-	$pathSource = "$directorySource\$file"
-	$pathDestination = "$directoryDeploy\$file"
+function Publish-File($pathSource, $pathDestination) {
 	Write-Host "Publishing file [$pathDestination]..."
 	Copy-Item $pathSource $pathDestination -Force
 }
 
-function Unpublish-File($file, $directoryDeploy) {
-	$path = "$directoryDeploy\$file"
+function Unpublish-File($path) {
 	if (Test-Path $path) {
 		Write-Host "Unpublishing file [$path]..."
 		Remove-Item $path -Force
@@ -43,19 +40,19 @@ function Unpublish-File($file, $directoryDeploy) {
 
 function Publish-Module($file, $directorySource, $directoryDeploy) {
 	$module = [System.IO.Path]::GetFileNameWithoutExtension($file)
-	$directoryModule = "$directoryDeploy\$module"
-	Set-Directory $directoryModule
-	Publish-File $file $directorySource $directoryModule
+	$directoryModule = "$directoryDeploy/$module"
+	New-Directory $directoryModule
+	Publish-File "$directorySource/$file" "$directoryModule/$file"
 	if (Get-Module $module) {
-		Write-Host "Importing module [$module]..."
+		Write-Host "Re-importing module [$module]..."
 		Import-Module $module -Force
 	}
 }
 
 function Unpublish-Module($file, $directoryDeploy) {
 	$module = [System.IO.Path]::GetFileNameWithoutExtension($file)
-	$directoryModule = "$directoryDeploy\$module"
-	Unpublish-File $file $directoryModule
+	$directoryModule = "$directoryDeploy/$module"
+	Unpublish-File "$directoryModule/$file"
 	Remove-Directory $directoryModule
 }
 

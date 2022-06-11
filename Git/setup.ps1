@@ -6,14 +6,15 @@ Import-Module "$PSScriptRoot\..\Modules\deploy\deploy.psm1"
 $directoryDeploy = "$HOME"
 $file = "deanjpepper.gitconfig"
 
+$nppexe = "C:\Program Files (x86)\Notepad++\notepad++.exe"
+
 if ($option -Eq "remove") {
-    Unpublish-File $file $directoryDeploy
+    Unpublish-File "$directoryDeploy/$file"
     Clear-GitConfig include.path
     Clear-GitConfig core.editor
 } else {
-    Publish-File $file $PSScriptRoot $directoryDeploy
+    Publish-File "$PSScriptRoot/$file" "$directoryDeploy/$file"
     Set-GitConfig include.path $file
-    $nppexe = "C:\Program Files (x86)\Notepad++\notepad++.exe"
     if (Get-Command code -ErrorAction SilentlyContinue) {
         Set-GitConfig core.editor "code --wait"
     } elseif (Test-Path $nppexe) {

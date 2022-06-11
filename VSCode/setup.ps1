@@ -8,11 +8,11 @@ $files = ("keybindings.json", "settings.json")
 
 if ($option -Eq "remove") {
     $files | ForEach-Object {
-        Unpublish-File $_ $directoryDeploy
+        Unpublish-File "$directoryDeploy/$_"
     }
 } else {
     $files | ForEach-Object {
-        Publish-File $_ $PSScriptRoot $directoryDeploy
+        Publish-File "$PSScriptRoot/$_" "$directoryDeploy/$_"
     }
 }
 
