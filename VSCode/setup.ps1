@@ -1,9 +1,9 @@
 param (
     [Parameter(Mandatory = $false)][string]$option
 )
-Import-Module -Name "$PSScriptRoot\..\Modules\deploy\deploy.psm1"
+Import-Module -Name "$PSScriptRoot/../Modules/Deploy/deploy.psm1"
 
-$directoryDeploy = "$HOME\AppData\Roaming\Code\User"
+$directoryDeploy = "$HOME/AppData/Roaming/Code/User"
 $files = ("keybindings.json", "settings.json")
 
 if ($option -Eq "remove") {

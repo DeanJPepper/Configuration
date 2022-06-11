@@ -1,10 +1,10 @@
 param (
     [Parameter(Mandatory = $false)][string]$option
 )
-Import-Module -Name "$PSScriptRoot\..\Modules\deploy\deploy.psm1"
+Import-Module -Name "$PSScriptRoot/../Modules/Deploy/deploy.psm1"
 
-$directoryDeploy = "$HOME\Documents\WindowsPowerShell"
-$directoryDeployModules = "$directoryDeploy\Modules"
+$directoryDeploy = "$HOME/Documents/WindowsPowerShell"
+$directoryDeployModules = "$directoryDeploy/Modules"
 $filterModule = "deanjpepper.*.psm1"
 
 if ($option -Eq "remove") {

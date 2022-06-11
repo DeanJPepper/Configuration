@@ -47,9 +47,9 @@ g lg
 
 ## Setup
 [Setup.ps1](setup.ps1) will deploy (or re-deploy) the Git config, [deanjpepper.gitconfig](deanjpepper.gitconfig), to the `$HOME` directory, include that configuration in the global Git configuration and set the Git editor.
-- `.\setup.ps1`
+- `./setup.ps1`
 
 Script can also be used to remove any setup.
-- `.\setup.ps1 remove`
+- `./setup.ps1 remove`
 
 Note: To enable script execution, the execution policy may need to be changed via ```Set-ExecutionPolicy unrestricted```.

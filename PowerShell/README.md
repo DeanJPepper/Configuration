@@ -30,10 +30,10 @@ Adds an alias to the PowerShell prompt if Notepad++ is installed.
 Changes the prompt when in a Git repository to show the Git prompt.
 
 ## Setup
-[Setup.ps1](setup.ps1) will deploy (or re-deploy) the PowerShell modules to the `$HOME\WindowsPowerShell\Modules` directory and import the prompt module in the PowerShell Profile.
-- `.\setup.ps1`
+[Setup.ps1](setup.ps1) will deploy (or re-deploy) the PowerShell modules to the `$HOME/Documents/WindowsPowerShell/Modules` directory and import the prompt module in the PowerShell Profile.
+- `./setup.ps1`
 
 Script can also be used to remove any setup.
-- `.\setup.ps1 remove`
+- `./setup.ps1 remove`
 
 Note: To enable script execution, the execution policy may need to be changed via ```Set-ExecutionPolicy unrestricted```.

@@ -1,7 +1,7 @@
 param (
     [Parameter(Mandatory = $false)][string]$option
 )
-Import-Module "$PSScriptRoot\..\Modules\deploy\deploy.psm1"
+Import-Module "$PSScriptRoot/../Modules/Deploy/deploy.psm1"
 
 $directoryDeploy = "$HOME"
 $file = "deanjpepper.gitconfig"
