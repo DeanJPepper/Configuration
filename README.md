@@ -3,6 +3,7 @@ Repository contains aliases, configuration changes and PowerShell modules to sav
 
 ## Dotfiles
 Repository root contains dotfiles to allow this repository to be used as a dotfiles repository.
+- [.bash_aliases](.bash_aliases)
 - [.gitconfig](.gitconfig)
 
 ## Git
