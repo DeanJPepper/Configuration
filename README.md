@@ -1,6 +1,10 @@
 # DJP.Config
 Repository contains aliases, configuration changes and PowerShell modules to save keystrokes and make development easier!
 
+## Dotfiles
+Repository root contains dotfiles to allow this repository to be used as a dotfiles repository.
+- [.gitconfig](.gitconfig)
+
 ## Git
 See [Git README](Git/README.md) for Git aliases and configuration changes.
 
