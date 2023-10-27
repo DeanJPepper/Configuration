@@ -102,14 +102,9 @@ function Get-GitSummary {
 	   
 		$output | ForEach-Object {
 			if ($_ -match "## (No commits yet on )?(?<branch>[^\[]+)((.*?)\[(ahead (?<ahead>(\d)*))?(, )?(behind (?<behind>(\d)*))?\])?") {	
-				# Branch
 				$branch = $matches["branch"]
-				
-				# Commits
 				$aheadCount = $matches["ahead"]
 				$behindCount = $matches["behind"]
-				
-				# Tracking
 				$posTracking = $branch.IndexOf('...')
 				if ($posTracking -gt -1) {
 					$branchTracking = $true
@@ -202,33 +197,27 @@ function Show-GitSummary {
 		}
 		Write-Host $gitDelilmiter -NoNewLine -ForegroundColor $gitColorDelimiter
 		if ($aheadCount -gt 0) {
-			# Ahead
 			Write-Host $branchNamePrompt -NoNewLine -ForegroundColor $gitColorBranchAhead
 		}
 		elseif ($behindCount -gt 0) {
-			# Behind
 			Write-Host $branchNamePrompt -NoNewLine -ForegroundColor $gitColorBranchBehind
 		}
 		elseif ($branchTracking) {
-			# Sync
 			Write-Host $branchNamePrompt -NoNewLine -ForegroundColor $gitColorBranchSync
 		}
 		else {
-			# Not tracking
 			Write-Host $branchNamePrompt -NoNewLine -ForegroundColor $gitColorBranchNotTracking
 		}
 		
-		# Ahead
 		if ($aheadCount -gt 0) {
 			Write-Host $gitDelilmiter -NoNewLine -ForegroundColor $gitColorDelimiter
 			Write-Host "+$aheadCount" -NoNewLine -ForegroundColor $gitColorBranchAhead
 		}			
-		# Behind
 		if ($behindCount -gt 0) {
 			Write-Host $gitDelilmiter -NoNewLine -ForegroundColor $gitColorDelimiter
 			Write-Host "-$behindCount" -NoNewLine -ForegroundColor $gitColorBranchBehind
-		}									
-		# Staged	
+		}
+
 		if ($stagedCountModified -gt 0) {
 			Write-Host $gitDelilmiter -NoNewLine -ForegroundColor $gitColorDelimiter
 			Write-Host "m$stagedCountModified" -NoNewLine -ForegroundColor $gitColorFileStaged
@@ -245,7 +234,7 @@ function Show-GitSummary {
 			Write-Host $gitDelilmiter -NoNewLine -ForegroundColor $gitColorDelimiter
 			Write-Host "a$stagedCountAdded" -NoNewLine -ForegroundColor $gitColorFileStaged
 		}
-		# Unstaged
+		
 		if ($unstagedCountModified -gt 0) {
 			Write-Host $gitDelilmiter -NoNewLine -ForegroundColor $gitColorDelimiter
 			Write-Host "m$unstagedCountModified" -NoNewLine -ForegroundColor $gitColorFileUnstaged
@@ -263,7 +252,6 @@ function Show-GitSummary {
 			Write-Host "?$untrackedCount" -NoNewLine -ForegroundColor $gitColorFileUnstaged
 		}
 		
-		# Sub-directory
 		if ($subDirectoryName -ne "") {
 			Write-Host $gitDelilmiter -NoNewLine -ForegroundColor $gitColorDelimiter
 			Write-Host $subDirectoryName -NoNewLine -ForegroundColor $gitColorSubDirectory
@@ -286,7 +274,9 @@ function Show-GitTree {
 			Show-GitSummary
 			Write-Host ""
 		}
-		Show-GitTree
+		else {
+			Show-GitTree
+		}
 		Pop-Location
 	}
 }
@@ -299,7 +289,7 @@ function Update-GitTree {
 	ForEach-Object { 
 		Push-Location $_.FullName
 		if (Get-IsGitRepository) {
-			Write-Host (Get-GitRepositoryName) -ForegroundColor $gitColorRepoName
+			Write-Host "Updating $(Get-GitRepositoryName)..." -ForegroundColor $gitColorRepoName
 			if ($null -ne $targetBranch -and $targetBranch -ne (Get-GitBranchName)) {
 				git fetch
 				git checkout $targetBranch
@@ -309,9 +299,11 @@ function Update-GitTree {
 			Write-Host ""
 			Write-Host ""
 		}
+		else {
+			Update-GitTree $targetBranch
+		}
 		Pop-Location
 	}
-	Show-GitTree
 }
 
 # Clean up the repository by deleting branches which have been merged
