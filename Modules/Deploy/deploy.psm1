@@ -13,26 +13,33 @@ function Clear-GitConfig($name) {
 }
 
 function New-Directory($directory){
-	if (!(Test-Path $directory)) {
+	if (!(Test-Path -Path $directory)) {
 		Write-Host "Creating directory [$directory]..."
 		New-Item $directory -ItemType Directory | Out-Null
 	}
 }
 
 function Remove-Directory($directory){
-	if (Test-Path $directory) {
+	if (Test-Path -Path $directory) {
 		Write-Host "Removing directory [$directory]..."
 		Remove-Item $directory
 	}
 }
 
 function Publish-File($pathSource, $pathDestination) {
-	Write-Host "Publishing file [$pathDestination]..."
-	Copy-Item $pathSource $pathDestination -Force
+	if (!(Test-Path -Path $pathDestination) ) {
+		Write-Host "Publishing file [$pathDestination]..."
+		Copy-Item $pathSource $pathDestination -Force
+	}
+
+	if (Compare-Object -ReferenceObject (Get-Content -Path $pathSource) -DifferenceObject (Get-Content -Path $pathDestination)){
+		Write-Host "Re-publishing file [$pathDestination]..."
+		Copy-Item $pathSource $pathDestination -Force
+	}
 }
 
 function Unpublish-File($path) {
-	if (Test-Path $path) {
+	if (Test-Path -Path $path) {
 		Write-Host "Unpublishing file [$path]..."
 		Remove-Item $path -Force
 	}
@@ -56,22 +63,25 @@ function Unpublish-Module($file, $directoryDeploy) {
 	Remove-Directory $directoryModule
 }
 
-function Register-Module($module) {
-	if (!(Test-Path $PROFILE)) {
-		Write-Host "Creating file [$PROFILE]..."
-		New-Item $PROFILE -ItemType "File" | Out-Null
+function Register-Module($module, $profileFile) {
+	if (!(Test-Path -Path $profileFile)) {
+		Write-Host "Creating file [$profileFile]..."
+		New-Item -Path $profileFile -ItemType "File" | Out-Null
 	}
 
-	if (!(Select-String -Path $PROFILE -Pattern $module)) {
-		Write-Host "Adding module [$module] to PowerShell profile [$PROFILE]..."
-		Add-Content $PROFILE " `r`nImport-Module $module"
+	if (!(Select-String -Path $profileFile -Pattern $module)) {
+		Write-Host "Adding module [$module] to PowerShell profile [$profileFile]..."
+		Add-Content -Path $profileFile " `r`nImport-Module $module"
 	}
 }
 
-function Unregister-Module($module) {
-	if (Select-String -Path $PROFILE -Pattern $module) {
-		Write-Host "Removing module [$module] from PowerShell profile [$PROFILE]..."
-		$content = (Get-Content $PROFILE -Raw) -Replace "Import-Module $module", ''
-		Write-Output $content > $PROFILE
+function Unregister-Module($module, $profileFile) {
+	if (!(Test-Path -Path $profileFile)) {
+		return
+	}
+	if (Select-String -Path $profileFile -Pattern $module) {
+		Write-Host "Removing module [$module] from PowerShell profile [$profileFile]..."
+		$content = (Get-Content $profileFile -Raw) -Replace "Import-Module $module", ''
+		Write-Output $content > $profileFile
 	}
 }
